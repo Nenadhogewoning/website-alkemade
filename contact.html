@@ -71,6 +71,8 @@
             </div>
             <div class="form-group"><label for="subject" data-i18n="contact.form.subject">Onderwerp *</label><input type="text" id="subject" name="subject" maxlength="160" required></div>
             <div class="form-group"><label for="message" data-i18n="contact.form.message">Bericht *</label><textarea id="message" name="message" maxlength="5000" rows="5" required></textarea></div>
+            <div id="contactTurnstile" style="margin-bottom:1rem"></div>
+            <p id="contactVerificationStatus" role="status" style="margin-bottom:1rem"></p>
             <button type="submit" class="btn btn-primary" id="submitBtn" data-i18n="contact.form.submit">Versturen</button>
           </form>
           <div id="formSuccess" style="display:none;padding:2rem;background:var(--color-cream);border-radius:var(--radius-md);text-align:center;">
@@ -197,9 +199,80 @@
         es: { sending: 'Enviando...', failed: 'No se pudo enviar. Inténtelo más tarde o escriba a alkemade@nl-alkemade.com.', invalid: 'Revise los datos introducidos.', limited: 'Demasiados intentos. Inténtelo de nuevo en unos minutos.' }
       };
 
+      const verificationStatus = document.getElementById('contactVerificationStatus');
+      const verificationCopy = {
+        nl: { wait: 'Even wachten op de beveiligingscontrole.', retry: 'Voltooi de beveiligingscontrole opnieuw.', unavailable: 'De beveiligingscontrole is niet beschikbaar. Vernieuw de pagina of mail naar alkemade@nl-alkemade.com.' },
+        en: { wait: 'Please wait for the security check.', retry: 'Please complete the security check again.', unavailable: 'The security check is unavailable. Refresh the page or email alkemade@nl-alkemade.com.' },
+        es: { wait: 'Espere a que termine la verificación de seguridad.', retry: 'Complete de nuevo la verificación de seguridad.', unavailable: 'La verificación de seguridad no está disponible. Actualice la página o escriba a alkemade@nl-alkemade.com.' }
+      };
+      let widgetId = null;
+      let token = '';
+      let verificationState = 'wait';
+      function setVerificationState(state) {
+        verificationState = state;
+        const labels = verificationCopy[document.documentElement.lang] || verificationCopy.nl;
+        verificationStatus.textContent = state ? labels[state] : '';
+      }
+      new MutationObserver(() => setVerificationState(verificationState))
+        .observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+
+      async function initTurnstile() {
+        setVerificationState('wait');
+        try {
+          const response = await fetch('/api/contact', { headers: { Accept: 'application/json' } });
+          const config = await response.json();
+          if (!response.ok || typeof config.siteKey !== 'string' || !config.siteKey) throw new Error('Missing widget configuration');
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            const timeout = setTimeout(() => {
+              delete window.alkemadeTurnstileLoaded;
+              reject(new Error('Turnstile load timeout'));
+            }, 15000);
+            window.alkemadeTurnstileLoaded = () => {
+              clearTimeout(timeout);
+              delete window.alkemadeTurnstileLoaded;
+              resolve();
+            };
+            script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=alkemadeTurnstileLoaded';
+            script.async = true;
+            script.onerror = () => {
+              clearTimeout(timeout);
+              delete window.alkemadeTurnstileLoaded;
+              reject(new Error('Turnstile script load failed'));
+            };
+            document.head.appendChild(script);
+          });
+          widgetId = window.turnstile.render('#contactTurnstile', {
+            sitekey: config.siteKey,
+            action: 'contact_form',
+            theme: 'light',
+            size: 'flexible',
+            language: 'auto',
+            'response-field': false,
+            callback: value => { token = value; setVerificationState(''); },
+            'expired-callback': () => { token = ''; setVerificationState('retry'); },
+            'timeout-callback': () => { token = ''; setVerificationState('retry'); },
+            'error-callback': code => {
+              console.warn('Turnstile widget error:', code);
+              token = '';
+              setVerificationState('unavailable');
+            }
+          });
+        } catch (error) {
+          console.warn('Turnstile initialization failed:', error.message);
+          setVerificationState('unavailable');
+        }
+      }
+      initTurnstile();
+
       form.addEventListener('submit', async function(e) {
         e.preventDefault();
         if (submitBtn.disabled) return;
+        if (!token) {
+          const labels = verificationCopy[document.documentElement.lang] || verificationCopy.nl;
+          alert(labels[verificationState] || labels.retry);
+          return;
+        }
         const messages = copy[document.documentElement.lang] || copy.nl;
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
@@ -208,6 +281,7 @@
 
         try {
           const data = Object.fromEntries(new FormData(form));
+          data.turnstileToken = token;
           const response = await fetch('/api/contact', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -215,7 +289,10 @@
           });
           const result = await response.json();
           if (!response.ok || result.success !== true) {
-            alert(response.status === 429 ? messages.limited : response.status === 400 ? messages.invalid : messages.failed);
+            const labels = verificationCopy[document.documentElement.lang] || verificationCopy.nl;
+            alert(result.error === 'verification_failed' ? labels.retry :
+              result.error === 'verification_unavailable' ? labels.unavailable :
+              response.status === 429 ? messages.limited : response.status === 400 ? messages.invalid : messages.failed);
             return;
           }
           accepted = true;
@@ -227,6 +304,11 @@
           if (!accepted) {
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
+            token = '';
+            setVerificationState('retry');
+            if (widgetId !== null && window.turnstile) {
+              try { window.turnstile.reset(widgetId); } catch { setVerificationState('unavailable'); }
+            }
           }
         }
       });
