@@ -12,6 +12,7 @@ const dist = path.join(root, 'dist');
 const { pages, languages, outputFile, canonicalize, sitemap, robots } = require('./seo');
 const { localizeDocument } = require('./localize');
 const { onPage, improveContent } = require('./on-page-seo');
+const {prepareFonts,prepareStock,protectDocument,removeExternalFonts,assertPrivateMarkup}=require('./privacy-assets');
 // Each entry is [source filename, output filename, maximum width, maximum height, logo].
 const assets = [
   ['Logo alkemade website.png','alkemade-logo.webp',1000,180,true],
@@ -131,6 +132,7 @@ async function versionAssets(images) {
     urls.set(url,encoded);
     return encoded;
   }
+  await prepareFonts(root,dist,version);
   for (const url of ['css/style.css','js/main.js','js/search.js']) await version(url);
   for (const meta of images.values()) {
     meta.url = await version(meta.url);
@@ -142,7 +144,7 @@ async function versionAssets(images) {
 function optimizeDocument(html, urls) {
   // Playfair Display was only declared in an unused custom property.
   // Preserve the exact existing weights, styles and swap strategy of used fonts.
-  html = html.replace('&family=Playfair+Display:wght@400;500;600','');
+  html = removeExternalFonts(html);
   html = html.replace('href="css/style.css"','href="'+urls.get('css/style.css')+'"');
   // Keep scripts at their existing locations, preserving initialization order
   // including page-specific inline contact/news handlers.
@@ -202,15 +204,19 @@ async function main() {
   const pb=(await fs.stat(path.join(root,partner))).size;
   images.set(partner,{url:partner,width:pm.width,height:pm.height,candidates:[{url:partner,width:pm.width,bytes:pb}]});
   before+=pb; after+=pb;
+  const stock=await prepareStock(dist,images);
+  before+=stock.before;after+=stock.after;
   const urls = await versionAssets(images);
   for (const page of pages) {
     const html=await fs.readFile(path.join(root,page),'utf8');
     const improved=improveContent(page,html);
     for(const lang of languages) {
-      const rendered=responsiveMarkup(page,localizeDocument(page,improved,lang),images);
+      const rendered=responsiveMarkup(page,protectDocument(page,localizeDocument(page,improved,lang),lang),images);
       const output=path.join(dist,outputFile(page,lang));
       await fs.mkdir(path.dirname(output),{recursive:true});
-      await fs.writeFile(output,canonicalize(page,onPage(page,optimizeDocument(rendered.html,urls),lang),lang));
+      const finalHtml=canonicalize(page,onPage(page,optimizeDocument(rendered.html,urls),lang),lang);
+      assertPrivateMarkup(page,finalHtml);
+      await fs.writeFile(output,finalHtml);
       console.log(JSON.stringify({kind:'page',page,lang,...rendered.stats}));
     }
   }
@@ -227,6 +233,6 @@ async function main() {
   await fs.writeFile(path.join(dist,'404.html'),errorHtml);
   console.log(JSON.stringify({kind:'seo',canonicalPages:pages.length*languages.length,sitemapUrls:pages.length*languages.length}));
   console.log(JSON.stringify({kind:'summary',originalBytes:before,servedBytes:after,
-    responsiveVariants:variants,localAssets:images.size,versionedAssets:urls.size}));
+    responsiveVariants:variants,localAssets:images.size,versionedAssets:urls.size,stockImages:stock.count,stockOriginalBytes:stock.before,stockServedBytes:stock.after}));
 }
 main().catch(error => { console.error('Image build failed:', error.message); process.exitCode=1; });
