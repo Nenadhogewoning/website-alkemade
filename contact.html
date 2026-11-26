@@ -196,7 +196,8 @@
       form.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Disable submit button and show loading state
+        // Ignore duplicate submissions while the request is in progress.
+        if (submitBtn.disabled) return;
         submitBtn.disabled = true;
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Verzenden...';
@@ -209,7 +210,7 @@
         const subject = form.querySelector('#subject').value;
         const message = form.querySelector('#message').value;
         
-        // Email naar Caesar volgens FormSubmit documentatie
+        // Prepare the contact request for FormSubmit.
         const businessFormData = new FormData();
         businessFormData.append('_subject', `Nieuw bericht via Alkemade website: ${subject}`);
         businessFormData.append('_replyto', email);
@@ -221,7 +222,7 @@
         businessFormData.append('subject', subject.trim());
         businessFormData.append('message', message.trim());
         
-        // Verstuur email naar Caesar
+        // Submit the contact request to Alkemade.
         fetch('https://formsubmit.co/ajax/alkemade@nl-alkemade.com', {
           method: 'POST',
           body: businessFormData,
@@ -229,9 +230,13 @@
             'Accept': 'application/json'
           }
         })
-        .then(response => response.json())
+        .then(async response => {
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || 'HTTP ' + response.status);
+          return result;
+        })
         .then(result => {
-          if (result.success) {
+          if (result.success === true || result.success === 'true') {
             // Success - toon success bericht
             form.style.display = 'none';
             successMsg.style.display = 'block';
