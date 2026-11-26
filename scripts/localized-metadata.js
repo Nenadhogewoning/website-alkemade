@@ -1,6 +1,7 @@
 'use strict';
 module.exports={
   "en": {
+    "privacy.html": ["Privacy Policy | Alkemade International","Read how Alkemade International B.V. processes personal data from website visits and online enquiries, and learn about your privacy rights.","Privacy Policy"],
     "index.html": [
       "Flower handling & logistics | Alkemade International",
       "Alkemade International in Aalsmeer supports growers with flower handling, auction preparation, quality feedback, sales support and logistics.",
@@ -53,6 +54,7 @@ module.exports={
     ]
   },
   "es": {
+    "privacy.html": ["Política de privacidad | Alkemade International","Conozca cómo Alkemade International B.V. trata los datos personales de visitantes y consultas en línea, y cuáles son sus derechos de privacidad.","Política de privacidad"],
     "index.html": [
       "Procesamiento y logística de flores | Alkemade International",
       "Alkemade International en Aalsmeer ofrece a los productores servicios de procesamiento de flores, preparación para subastas, calidad, ventas y logística.",

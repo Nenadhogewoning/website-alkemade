@@ -629,6 +629,66 @@
       "dest": "/es/ubicacion/index.html"
     },
     {
+      "src": "/en/privacy",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/privacy/"
+      }
+    },
+    {
+      "src": "/en/privacy/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/privacy/"
+      }
+    },
+    {
+      "src": "/en/privacy/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/en/privacy/index.html"
+    },
+    {
+      "src": "/es/privacidad",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/privacidad/"
+      }
+    },
+    {
+      "src": "/es/privacidad/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/privacidad/"
+      }
+    },
+    {
+      "src": "/es/privacidad/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/es/privacidad/index.html"
+    },
+    {
       "handle": "filesystem"
     },
     {

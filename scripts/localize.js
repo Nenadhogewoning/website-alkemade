@@ -1,6 +1,7 @@
 'use strict';
 const {languages,pages,canonicalPath}=require('./seo');
 const translations=require('../js/main');
+const {privacyContent,contactNotice}=require('./privacy-content');
 const extra={
   "Geïntegreerde webgebaseerde software": [
     "Integrated web-based software",
@@ -170,6 +171,10 @@ function localizeDocument(page,html,lang) {
   if(!languages.includes(lang)||!pages.includes(page)) throw Error('Invalid language/page');
   html=html.replace('<html lang="nl">','<html lang="'+lang+'" data-static-language="'+lang+'">');
   let translated=0;
+  // Insert localized legal content before rewriting internal links.
+  html=html.replace(/<a href="#" data-i18n="footer\.privacy">/g,'<a href="privacy.html" data-i18n="footer.privacy">');
+  if(page==='privacy.html'&&html.includes('<!-- PRIVACY_CONTENT -->'))html=html.replace('<!-- PRIVACY_CONTENT -->',privacyContent(lang));
+  if(page==='contact.html'&&html.includes('<!-- CONTACT_PRIVACY_NOTICE -->'))html=html.replace('<!-- CONTACT_PRIVACY_NOTICE -->',contactNotice(lang));
   const expected=(html.match(/\bdata-i18n="/g)||[]).length;
   html=html.replace(/<([a-z][a-z0-9]*)\b([^<>]*\bdata-i18n="([^"]+)"[^<>]*)>([\s\S]*?)<\/\1>/gi,(all,tag,attrs,key,old)=>{
     translated++;

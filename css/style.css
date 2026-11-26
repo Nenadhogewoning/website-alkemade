@@ -377,3 +377,19 @@ p { margin-bottom: var(--space-sm); color: var(--color-gray-dark); }
 
 /* Language links retain the existing dropdown styling and are keyboard accessible. */
 html:not(.js-language-menu) .lang-dropdown:focus-within .lang-menu { opacity:1; visibility:visible; transform:translateY(0); }
+
+/* Legal content: use existing brand typography and colors. */
+.privacy-content { max-width: 880px; overflow-wrap: anywhere; }
+.privacy-date { font-size: .9rem; color: var(--color-gray-dark); margin-bottom: var(--space-md); }
+.privacy-toc { background:var(--color-cream); border:1px solid var(--color-light); border-left:3px solid var(--color-accent); border-radius:var(--radius-md); padding:clamp(16px,4vw,32px); margin-bottom:var(--space-xl); }
+.privacy-toc h2 { font-size:1.55rem; margin-bottom:12px; }
+.privacy-toc ol,.privacy-section ul { padding-left:1.6rem; margin:0 0 1rem; }
+.privacy-toc ol { list-style:decimal; margin-bottom:0; }
+.privacy-section ul { list-style:disc; }
+.privacy-toc li,.privacy-section li { padding-left:.2rem; margin:.25rem 0; color:var(--color-gray-dark); }
+.privacy-section { margin:0 0 var(--space-lg); scroll-margin-top:120px; }
+.privacy-section h2 { font-size:clamp(1.45rem,3vw,2rem); margin:0 0 1rem; color:var(--color-primary); }
+.privacy-section h3 { font-family:var(--font-body); font-size:1.08rem; font-weight:600; margin:1.4rem 0 .55rem; }
+.privacy-content a,.contact-privacy-note a { color:var(--color-primary); text-decoration:underline; text-underline-offset:.15em; }
+.privacy-content a:focus-visible,.contact-privacy-note a:focus-visible { outline:2px solid var(--color-primary); outline-offset:3px; }
+.contact-privacy-note { font-size:.875rem; line-height:1.5; margin:0 0 1rem; }
