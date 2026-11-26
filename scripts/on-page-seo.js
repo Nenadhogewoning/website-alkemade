@@ -1,6 +1,7 @@
 'use strict';
 
-const {siteOrigin,pages,canonicalPath}=require('./seo');
+const {siteOrigin,pages,canonicalPath,languages}=require('./seo');
+const localizedMetadata=require('./localized-metadata');
 const metadata = {
   "index.html": [
     "Bloemenverwerking & logistiek | Alkemade International",
@@ -67,21 +68,25 @@ const brand='Alkemade International B.V.';
 const escapeHtml=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const galleryChildren=new Set(['services.html','klanten.html','mensen.html','vestiging.html']);
 
-function structuredData(page) {
-  const [title,description,label,type]=metadata[page];
-  const url=siteOrigin+canonicalPath(page);
+function pageMetadata(page,lang='nl') {
+  if(!metadata[page]||!languages.includes(lang)) throw Error('Missing metadata: '+page+' '+lang);
+  return lang==='nl'?metadata[page]:[...localizedMetadata[lang][page],metadata[page][3]];
+}
+function structuredData(page,lang='nl') {
+  const [title,description,label,type]=pageMetadata(page,lang);
+  const url=siteOrigin+canonicalPath(page,lang);
   const orgId=siteOrigin+'/#organization',siteId=siteOrigin+'/#website';
   const org={'@type':'Organization','@id':orgId,name:brand,url:siteOrigin+'/',
     logo:{'@type':'ImageObject',url:siteOrigin+'/logo.png',width:512,height:512},
     foundingDate:'1997',telephone:'+31-297-567148',email:'alkemade@nl-alkemade.com',
     address:{'@type':'PostalAddress',streetAddress:'Legmeerdijk 313',postalCode:'1431 GB',
       addressLocality:'Aalsmeer',addressCountry:'NL'}};
-  const website={'@type':'WebSite','@id':siteId,url:siteOrigin+'/',name:'Alkemade International',publisher:{'@id':orgId},inLanguage:'nl'};
-  const webPage={'@type':type,'@id':url+'#webpage',url,name:title,description,inLanguage:'nl',isPartOf:{'@id':siteId},about:{'@id':orgId}};
+  const website={'@type':'WebSite','@id':siteId,url:siteOrigin+'/',name:'Alkemade International',publisher:{'@id':orgId},inLanguage:languages};
+  const webPage={'@type':type,'@id':url+'#webpage',url,name:title,description,inLanguage:lang,isPartOf:{'@id':siteId},about:{'@id':orgId}};
   const graph=[org,website,webPage];
   if(page!=='index.html'){
-    const crumbs=[['Home',siteOrigin+'/']];
-    if(galleryChildren.has(page)) crumbs.push(['Galerij',siteOrigin+'/galerij.html']);
+    const crumbs=[[pageMetadata('index.html',lang)[2],siteOrigin+canonicalPath('index.html',lang)]];
+    if(galleryChildren.has(page)) crumbs.push([pageMetadata('galerij.html',lang)[2],siteOrigin+canonicalPath('galerij.html',lang)]);
     crumbs.push([label,url]);
     const id=url+'#breadcrumb';
     webPage.breadcrumb={'@id':id};
@@ -90,20 +95,21 @@ function structuredData(page) {
   return {'@context':'https://schema.org','@graph':graph};
 }
 
-function onPage(page,html) {
-  if(!metadata[page]||!pages.includes(page)) throw Error('Missing metadata: '+page);
-  const [title,description]=metadata[page],url=siteOrigin+canonicalPath(page);
+function onPage(page,html,lang='nl') {
+  const [title,description]=pageMetadata(page,lang),url=siteOrigin+canonicalPath(page,lang);
+  const locales={nl:'nl_NL',en:'en_GB',es:'es_ES'};
+  const logoAlt={nl:'Logo van Alkemade International B.V.',en:'Alkemade International B.V. logo',es:'Logotipo de Alkemade International B.V.'}[lang];
   if((html.match(/<title>[\s\S]*?<\/title>/g)||[]).length!==1) throw Error('Expected one title: '+page);
   if((html.match(/<meta name="description" content="[^"]*">/g)||[]).length!==1) throw Error('Expected one description: '+page);
   html=html.replace(/<title>[\s\S]*?<\/title>/,'<title>'+escapeHtml(title)+'</title>')
     .replace(/<meta name="description" content="[^"]*">/,'<meta name="description" content="'+escapeHtml(description)+'">');
   const tags=[
-    ['og:type','website'],['og:site_name','Alkemade International'],['og:title',title],['og:description',description],['og:url',url],['og:locale','nl_NL'],
-    ['og:image',siteOrigin+'/social-card.jpg'],['og:image:width','1200'],['og:image:height','630'],['og:image:alt','Logo van Alkemade International B.V.']
+    ['og:type','website'],['og:site_name','Alkemade International'],['og:title',title],['og:description',description],['og:url',url],['og:locale',locales[lang]],...languages.filter(code=>code!==lang).map(code=>['og:locale:alternate',locales[code]]),
+    ['og:image',siteOrigin+'/social-card.jpg'],['og:image:width','1200'],['og:image:height','630'],['og:image:alt',logoAlt]
   ].map(([property,value])=>'  <meta property="'+property+'" content="'+escapeHtml(value)+'">').join('\n');
-  const twitter=[['twitter:card','summary_large_image'],['twitter:title',title],['twitter:description',description],['twitter:image',siteOrigin+'/social-card.jpg'],['twitter:image:alt','Logo van Alkemade International B.V.']]
+  const twitter=[['twitter:card','summary_large_image'],['twitter:title',title],['twitter:description',description],['twitter:image',siteOrigin+'/social-card.jpg'],['twitter:image:alt',logoAlt]]
     .map(([name,value])=>'  <meta name="'+name+'" content="'+escapeHtml(value)+'">').join('\n');
-  const schema=JSON.stringify(structuredData(page)).replace(/</g,'\\u003c');
+  const schema=JSON.stringify(structuredData(page,lang)).replace(/</g,'\\u003c');
   return html.replace('</head>',tags+'\n'+twitter+'\n  <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">\n  <script type="application/ld+json">'+schema+'</script>\n</head>');
 }
 
@@ -149,4 +155,4 @@ function improveContent(page,html) {
     return match;
   }));
 }
-module.exports={metadata,onPage,improveContent,structuredData};
+module.exports={metadata,pageMetadata,onPage,improveContent,structuredData};

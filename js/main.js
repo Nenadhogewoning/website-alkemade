@@ -183,10 +183,15 @@ const translations = {
   }
 };
 
-let currentLang = localStorage.getItem('language') || 'nl';
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = translations;
+} else {
+const staticLanguage = document.documentElement.dataset.staticLanguage;
+let currentLang = staticLanguage || localStorage.getItem('language') || 'nl';
 
 document.addEventListener('DOMContentLoaded', function() {
-  setLanguage(currentLang);
+  if (!staticLanguage) setLanguage(currentLang);
+  document.documentElement.classList.add('js-language-menu');
   
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   // Avoid hiding the entire document after the browser has started painting.
@@ -256,15 +261,31 @@ document.addEventListener('DOMContentLoaded', function() {
   if (langToggle && langDropdown) {
     langToggle.addEventListener('click', (e) => { 
       e.stopPropagation(); 
-      langDropdown.classList.toggle('open'); 
+      langDropdown.classList.toggle('open');
+      langToggle.setAttribute('aria-expanded',String(langDropdown.classList.contains('open'))); 
     });
     document.addEventListener('click', (e) => { 
-      if (!langDropdown.contains(e.target)) langDropdown.classList.remove('open'); 
+      if (!langDropdown.contains(e.target)) {
+        langDropdown.classList.remove('open');
+        langToggle.setAttribute('aria-expanded','false');
+      } 
     });
     document.querySelectorAll('.lang-option').forEach(option => {
-      option.addEventListener('click', function() { 
-        setLanguage(this.dataset.lang); 
-        langDropdown.classList.remove('open'); 
+      option.addEventListener('click', function(e) {
+        if (staticLanguage) {
+          // Do not store contact details in browser storage. Warn before discarding a draft.
+          if (this.dataset.lang !== staticLanguage) {
+            const form = document.getElementById('contactForm');
+            const hasDraft = form && [...form.querySelectorAll('input:not([type=hidden]), textarea')]
+              .some(field => field.name !== 'website_url' && field.value.trim());
+            const warning = {nl:'Bij het wisselen van taal worden de ingevulde gegevens niet meegenomen. Doorgaan?',en:'Switching language will discard the details you have entered. Continue?',es:'Al cambiar de idioma se perderán los datos introducidos. ¿Continuar?'};
+            if (hasDraft && !window.confirm(warning[staticLanguage])) { e.preventDefault(); return; }
+          } else { e.preventDefault(); }
+        } else {
+          setLanguage(this.dataset.lang);
+        }
+        langDropdown.classList.remove('open');
+        langToggle.setAttribute('aria-expanded','false');
       });
     });
   }
@@ -419,6 +440,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setLanguage(lang) {
+  if (staticLanguage) {
+    const target = [...document.querySelectorAll('.lang-option')].find(a=>a.dataset.lang===lang);
+    if (target && lang!==staticLanguage) target.click();
+    return;
+  }
   currentLang = lang;
   localStorage.setItem('language', lang);
   document.documentElement.lang = lang;
@@ -451,3 +477,4 @@ function setLanguage(lang) {
 }
 
 window.setLanguage = setLanguage;
+}

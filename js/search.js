@@ -305,6 +305,8 @@ class AISearch {
   constructor() {
     this.isOpen = false;
     this.currentLang = this.getWebsiteLanguage();
+    const routesNode = document.getElementById('localized-routes');
+    this.localizedRoutes = routesNode ? JSON.parse(routesNode.textContent) : null;
     this.llm = null;
     this.searchRevision = 0;
     this.init();
@@ -317,6 +319,8 @@ class AISearch {
   }
   
   getWebsiteLanguage() {
+    const staticLang = document.documentElement.dataset.staticLanguage;
+    if (['nl','en','es'].includes(staticLang)) return staticLang;
     const storedLang = localStorage.getItem('language');
     if (storedLang && ['nl', 'en', 'es'].includes(storedLang)) {
       return storedLang;
@@ -331,6 +335,7 @@ class AISearch {
   }
   
   listenForLanguageChanges() {
+    if (document.documentElement.dataset.staticLanguage) return;
     document.addEventListener('click', (e) => {
       const langOption = e.target.closest('.lang-option');
       if (langOption && langOption.dataset.lang) {
@@ -372,7 +377,7 @@ class AISearch {
     if (navMenu) {
       const searchBtn = document.createElement('li');
       searchBtn.innerHTML = `
-        <button class="search-trigger" aria-label="Zoeken">
+        <button class="search-trigger" aria-label="${{nl:'Zoeken',en:'Search',es:'Buscar'}[this.currentLang]}">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
@@ -394,7 +399,7 @@ class AISearch {
             </svg>
             <input type="text" class="search-input" placeholder="${ui.placeholder}" autocomplete="off">
           </div>
-          <button class="search-close" aria-label="Sluiten">
+          <button class="search-close" aria-label="${{nl:'Sluiten',en:'Close',es:'Cerrar'}[this.currentLang]}">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
@@ -776,6 +781,10 @@ class AISearch {
     }, 0);
   }
   
+  localizedUrl(url) {
+    return this.localizedRoutes && Object.hasOwn(this.localizedRoutes,url) ? this.localizedRoutes[url] : url;
+  }
+
   displayResults(searchResults, aiAnswer, query, lang) {
     const container = document.querySelector('.search-results');
     const ui = searchData[lang].ui;
@@ -810,7 +819,7 @@ class AISearch {
             ${ui.aiAnswer}
           </div>
           <p class="search-ai-text">${aiAnswer.text}</p>
-          <a href="${aiAnswer.url}" class="search-ai-link">
+          <a href="${this.localizedUrl(aiAnswer.url)}" class="search-ai-link">
             ${ui.moreInfo}
           </a>
         </div>
@@ -828,7 +837,7 @@ class AISearch {
         
         pages.forEach(page => {
           html += `
-            <a href="${page.url}" class="search-result-item">
+            <a href="${this.localizedUrl(page.url)}" class="search-result-item">
               <h4>${page.title}</h4>
               <p>${page.content.substring(0, 120)}${page.content.length > 120 ? '...' : ''}</p>
             </a>
