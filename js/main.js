@@ -188,19 +188,47 @@ let currentLang = localStorage.getItem('language') || 'nl';
 document.addEventListener('DOMContentLoaded', function() {
   setLanguage(currentLang);
   
-  // Smooth page load animation
-  document.body.style.opacity = '0';
-  document.body.style.transition = 'opacity 0.5s ease';
-  setTimeout(() => { document.body.style.opacity = '1'; }, 100);
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  // Avoid hiding the entire document after the browser has started painting.
+  // Existing hero and scroll animations remain for normal motion preferences.
+  if (!motion.matches && 'IntersectionObserver' in window) {
+    document.documentElement.classList.add('motion-enabled');
+  }
   
-  // Navigation scroll effect
+  // Batch scroll-related DOM updates into a single animation frame.
   const navWrapper = document.querySelector('.nav-wrapper');
-  let lastScroll = 0;
-  window.addEventListener('scroll', () => {
-    const currentScroll = window.scrollY;
-    navWrapper.classList.toggle('scrolled', currentScroll > 50);
-    lastScroll = currentScroll;
-  });
+  const hero = document.querySelector('.hero');
+  const heroContent = document.querySelector('.hero-content');
+  let scrollFrame = 0;
+  let navScrolled = null;
+  let heroMoved = false;
+  const updateScroll = () => {
+    scrollFrame = 0;
+    const y = window.scrollY;
+    const scrolled = y > 50;
+    if (navWrapper && navScrolled !== scrolled) {
+      navWrapper.classList.toggle('scrolled', scrolled);
+      navScrolled = scrolled;
+    }
+    if (hero && heroContent) {
+      if (!motion.matches && y < window.innerHeight) {
+        heroContent.style.transform = `translateY(${y * 0.15}px)`;
+        heroContent.style.opacity = Math.max(0, 1 - y * 0.002);
+        heroMoved = true;
+      } else if (heroMoved) {
+        heroContent.style.transform = '';
+        heroContent.style.opacity = '';
+        heroMoved = false;
+      }
+    }
+  };
+  const scheduleScroll = () => {
+    if (!scrollFrame) scrollFrame = requestAnimationFrame(updateScroll);
+  };
+  window.addEventListener('scroll', scheduleScroll, { passive: true });
+  window.addEventListener('resize', scheduleScroll, { passive: true });
+  motion.addEventListener('change', scheduleScroll);
+  updateScroll();
   
   // Mobile menu with smooth animation
   const menuToggle = document.querySelector('.menu-toggle');
@@ -242,39 +270,22 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Enhanced scroll animations with stagger effect
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  };
-  
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry, index) => {
-      if (entry.isIntersecting) {
-        setTimeout(() => {
-          entry.target.classList.add('animated');
-        }, index * 100);
-        observer.unobserve(entry.target);
-      }
-    });
-  }, observerOptions);
-  
-  document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
-  
-  // Parallax effect for hero
-  const hero = document.querySelector('.hero');
-  const heroContent = document.querySelector('.hero-content');
-  if (hero && heroContent) {
-    window.addEventListener('scroll', () => {
-      const scrolled = window.scrollY;
-      if (scrolled < window.innerHeight) {
-        heroContent.style.transform = `translateY(${scrolled * 0.15}px)`;
-        heroContent.style.opacity = 1 - (scrolled * 0.002);
-      }
-    });
+  if (!motion.matches && 'IntersectionObserver' in window) {
+    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('animated'), index * 100);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
   }
-  
+
   // Smooth counter animation for stats
   const stats = document.querySelectorAll('.stat-number');
+  if (!motion.matches && stats.length && 'IntersectionObserver' in window) {
   const statsObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -303,6 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }, { threshold: 0.5 });
   
   stats.forEach(stat => statsObserver.observe(stat));
+  }
   
   // Gallery tabs with smooth filter animation
   document.querySelectorAll('.gallery-tab').forEach(tab => {
@@ -334,6 +346,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Button ripple effect
   document.querySelectorAll('.btn').forEach(btn => {
     btn.addEventListener('click', function(e) {
+      if (motion.matches) return;
       const rect = this.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
@@ -366,19 +379,28 @@ document.addEventListener('DOMContentLoaded', function() {
   `;
   document.head.appendChild(style);
   
-  // Magnetic effect for buttons
+  // Keep the existing magnetic hover effect but coalesce pointer updates.
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
   document.querySelectorAll('.btn, .service-card, .portal-link').forEach(el => {
-    el.addEventListener('mousemove', function(e) {
-      const rect = this.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
-      
-      this.style.transform = `translate(${x * 0.05}px, ${y * 0.05}px)`;
-    });
-    
-    el.addEventListener('mouseleave', function() {
-      this.style.transform = '';
-    });
+    let frame = 0;
+    let x = 0, y = 0;
+    const reset = () => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+      el.style.transform = '';
+    };
+    el.addEventListener('mousemove', e => {
+      if (motion.matches || !finePointer.matches) return;
+      x = e.clientX; y = e.clientY;
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const rect = el.getBoundingClientRect();
+        el.style.transform = `translate(${(x - rect.left - rect.width / 2) * 0.05}px, ${(y - rect.top - rect.height / 2) * 0.05}px)`;
+      });
+    }, { passive: true });
+    el.addEventListener('mouseleave', reset);
+    motion.addEventListener('change', reset);
   });
   
   // Smooth scroll for anchor links
@@ -389,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         const target = document.querySelector(href);
         if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          target.scrollIntoView({ behavior: motion.matches ? 'auto' : 'smooth', block: 'start' });
         }
       }
     });

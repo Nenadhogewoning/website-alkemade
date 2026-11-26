@@ -15,3 +15,13 @@ Generated HTML assigns eager loading to the header logo and likely above-the-fol
 Responsive WebP widths (240–1440 px, where applicable) are generated from the original, never upscaled, and kept only when smaller than the existing primary image. The phase-1 primary quality/settings are unchanged. The `sizes` hints approximate the existing CSS and account for large fixed-height crops. The homepage hero uses a tiny inline placeholder through `picture` at the exact existing hidden-image breakpoint (1024px); desktop retains the photo. The new Hogewoning Flowers WebP remains unchanged and the unused old logo is no longer converted.
 
 The changes apply to built output (`npm run build`), not the raw HTML used by local development. No new runtime dependencies or external services. Test desktop/mobile visual parity and use browser Network/Performance tools to verify actual candidate selection, lazy loading, CLS and LCP. Build logs report variant byte sizes and per-page loading counts. Contact API and functionality are unchanged. Do not merge without explicit approval.
+
+## Phase 3 — technical performance
+
+The build publishes content-addressed copies of CSS, JavaScript and local image candidates under /assets/<hash>/ and references those from built HTML. Only this namespace is cached for one year with immutable Cache-Control; HTML, original URLs and contact API are excluded. The original static URLs are retained for compatibility. A change in bytes produces a new URL. Build storage increases because compatibility copies remain.
+
+The unused Playfair Display font request is removed from generated HTML; the two used Google font families and their exact weights/styles remain. Google Maps, Unsplash and Turnstile are unchanged to avoid content and behavior changes. No dependency added.
+
+Scroll and magnetic-hover updates are coalesced to one animation frame; normal hero/scroll/counter effects remain. The full-document post-load opacity animation is removed to prevent a blank flash. Reduced-motion preferences are honored; scroll content remains visible without IntersectionObserver. Search vocabulary is initialized on demand and word indexes use a Map rather than linear searches. The artificial 800 ms search wait is removed, but the query debounce and existing UI/results remain. The existing script placement and page-specific handlers are retained. No contact API or form changes.
+
+Review normal desktop/mobile design, gallery filters, language switch, search and Ctrl/Cmd+K, reduced motion, and contact form before merging. Compare cache headers on HTML/API and fingerprinted assets. Actual browser performance measurements remain part of phase 4.
