@@ -27,12 +27,20 @@ function limited(req) {
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   const fail = (status, error) => res.status(status).json({ success: false, error });
+  if (req.method === 'GET') {
+    const siteKey = process.env.TURNSTILE_SITE_KEY;
+    if (!siteKey || !process.env.TURNSTILE_SECRET_KEY) {
+      return fail(503, 'verification_unavailable');
+    }
+    return res.status(200).json({ siteKey });
+  }
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
+    res.setHeader('Allow', 'GET, POST');
     return fail(405, 'method_not_allowed');
   }
+  let origin;
   try {
-    const origin = new URL(req.headers.origin || '');
+    origin = new URL(req.headers.origin || '');
     if (origin.host !== req.headers.host || !['https:', 'http:'].includes(origin.protocol)) {
       return fail(403, 'forbidden_origin');
     }
@@ -65,6 +73,16 @@ module.exports = async (req, res) => {
     return fail(400, 'invalid_input');
   }
 
+  const token = body.turnstileToken;
+  if (typeof token !== 'string' || !token || token.length > 2048) {
+    return fail(400, 'verification_failed');
+  }
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret || !process.env.TURNSTILE_SITE_KEY) {
+    console.error('Turnstile configuration missing');
+    return fail(503, 'verification_unavailable');
+  }
+
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.CONTACT_FROM_EMAIL;
   const to = process.env.CONTACT_TO_EMAIL;
@@ -75,6 +93,25 @@ module.exports = async (req, res) => {
   if (limited(req)) {
     res.setHeader('Retry-After', '600');
     return fail(429, 'rate_limited');
+  }
+
+  // Fail closed: never send mail unless Cloudflare verifies this one-time token.
+  try {
+    const verification = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ secret, response: token }),
+      signal: AbortSignal.timeout(5000)
+    });
+    if (!verification.ok) return fail(502, 'verification_unavailable');
+    const result = await verification.json();
+    if (result.success !== true || result.action !== 'contact_form' ||
+        result.hostname !== origin.hostname) {
+      return fail(400, 'verification_failed');
+    }
+  } catch {
+    console.error('Turnstile verification request failed');
+    return fail(502, 'verification_unavailable');
   }
 
   try {

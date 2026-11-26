@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json({ limit: '32kb' }));
+app.get('/api/contact', contactHandler);
 app.post('/api/contact', contactHandler);
 
 // Serve static files (alleen voor niet-API routes)
