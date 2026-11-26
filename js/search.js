@@ -22,7 +22,7 @@ const searchData = {
       { title: 'Nieuws', url: 'nieuws.html', keywords: ['nieuws', 'updates', 'artikelen', 'laatste nieuws'], content: 'Laatste nieuws en updates van Alkemade Flowers International. Sinds 2026 is het mogelijk om mono bossen en bandboeketten te laten maken.', category: 'nieuws' },
       { title: 'Contact', url: 'contact.html', keywords: ['contact', 'adres', 'telefoon', 'email', 'locatie', 'bereiken', 'bellen'], content: 'Neem contact op met Alkemade Flowers. Gevestigd bij FloraHolland Aalsmeer: Legmeerdijk 313, 1431GB Aalsmeer. Telefoon: +31-297-567148. Email: alkemade@nl-alkemade.com', category: 'contact' },
       { title: 'Vestiging', url: 'vestiging.html', keywords: ['vestiging', 'locatie', 'adres', 'waar', 'floraholland', 'aalsmeer'], content: 'Onze vestiging is gelegen bij FloraHolland Aalsmeer, de grootste bloemenveiling ter wereld. Bezoekadres: Legmeerdijk 313, 1431GB Aalsmeer.', category: 'locatie' },
-      { title: 'Team', url: 'mensen.html', keywords: ['team', 'mensen', 'medewerkers', 'personeel', 'wie werken er'], content: 'Ontmoet ons team: Bartek Liskowski (Manager Operations), Claudia Alkemade (Accountmanager), en meer.', category: 'bedrijf' },
+      { title: 'Team', url: 'mensen.html', keywords: ['team', 'mensen', 'medewerkers', 'personeel', 'wie werken er'], content: 'Ontmoet ons team: Claudia Alkemade (Accountmanager), Aleksandra Wolska en Mike Hofman.', category: 'bedrijf' },
       { title: 'Klanten', url: 'klanten.html', keywords: ['klanten', 'tevreden', 'partners', 'samenwerking'], content: 'Wij werken samen met kwekers en partners over de hele wereld. 50+ partners wereldwijd, 27+ jaren ervaring, 100% klanttevredenheid.', category: 'samenwerking' }
     ],
     faq: [
@@ -37,7 +37,7 @@ const searchData = {
       { q: ['veiling', 'auction', 'floraholland', 'veilingvoorbereiding'], a: 'Wij bereiden bloemen voor op de veiling en verzorgen transport naar verschillende veilinglocaties, waaronder FloraHolland Aalsmeer. Onze veilingvoorbereiding zorgt voor optimale presentatie van uw bloemen op de veiling.', url: 'services.html', context: 'diensten' },
       { q: ['partner worden', 'samenwerken', 'samenwerking', 'word partner', 'hoe word ik partner'], a: 'Wilt u partner worden? Wij bieden een compleet dienstenpakket voor kwekers en derden met focus op perfecte supply chain management. Neem contact met ons op via +31-297-567148 of alkemade@nl-alkemade.com voor meer informatie over een partnerschap.', url: 'partners.html', context: 'samenwerking' },
       { q: ['kwekers', 'growers', 'voor wie', 'wie zijn jullie klanten'], a: 'Onze diensten zijn niet alleen voor kwekers, maar ook voor derden zoals exporteurs van bloemen, groothandels in bloemen en retailers. Wij werken samen met partners wereldwijd en hebben meer dan 50 partners in verschillende landen.', url: 'partners.html', context: 'samenwerking' },
-      { q: ['team', 'mensen', 'wie werken er', 'medewerkers'], a: 'Ons team bestaat uit ervaren professionals: Bartek Liskowski (Manager Operations), Claudia Alkemade (Accountmanager), Aleksandra Wolska (Junior Accountmanager), Mike Hofman (logistiek coördinator) en Anna Anderlova (Administratie).', url: 'mensen.html', context: 'bedrijf' }
+      { q: ['team', 'mensen', 'wie werken er', 'medewerkers'], a: 'Ons team bestaat uit ervaren professionals: Claudia Alkemade (Accountmanager), Aleksandra Wolska (Junior Accountmanager) en Mike Hofman (logistiek coördinator).', url: 'mensen.html', context: 'bedrijf' }
     ]
   },
   en: {
@@ -60,7 +60,7 @@ const searchData = {
       { title: 'News', url: 'nieuws.html', keywords: ['news', 'updates', 'articles', 'latest news'], content: 'Latest news and updates from Alkemade Flowers International. Since 2026, it has been possible to have mono bunches and band bouquets made. We will also make smart use of AI.', category: 'news' },
       { title: 'Contact', url: 'contact.html', keywords: ['contact', 'address', 'phone', 'email', 'location', 'reach', 'call'], content: 'Contact Alkemade Flowers. Located at FloraHolland Aalsmeer: Legmeerdijk 313, 1431GB Aalsmeer. Phone: +31-297-567148. Email: alkemade@nl-alkemade.com', category: 'contact' },
       { title: 'Location', url: 'vestiging.html', keywords: ['location', 'address', 'where', 'floraholland', 'aalsmeer'], content: 'Our location is at FloraHolland Aalsmeer, the world\'s largest flower auction. Visit address: Legmeerdijk 313, 1431GB Aalsmeer.', category: 'location' },
-      { title: 'Team', url: 'mensen.html', keywords: ['team', 'people', 'employees', 'staff', 'who works'], content: 'Meet our team: Bartek Liskowski (Manager Operations), Claudia Alkemade (Account Manager), and more.', category: 'company' },
+      { title: 'Team', url: 'mensen.html', keywords: ['team', 'people', 'employees', 'staff', 'who works'], content: 'Meet our team: Claudia Alkemade (Account Manager), Aleksandra Wolska and Mike Hofman.', category: 'company' },
       { title: 'Clients', url: 'klanten.html', keywords: ['clients', 'satisfied', 'partners', 'cooperation'], content: 'We work with growers and partners around the world. 50+ partners worldwide, 27+ years of experience, 100% customer satisfaction.', category: 'cooperation' }
     ],
     faq: [
@@ -75,7 +75,7 @@ const searchData = {
       { q: ['auction', 'floraholland', 'auction preparation'], a: 'We prepare flowers for auction and provide transport to various auction sites, including FloraHolland Aalsmeer. Our auction preparation ensures optimal presentation of your flowers at the auction.', url: 'services.html', context: 'services' },
       { q: ['become partner', 'cooperate', 'cooperation', 'partnership', 'how to become partner'], a: 'Would you like to become a partner? We offer a complete service package for growers and third parties with focus on perfect supply chain management. Contact us at +31-297-567148 or alkemade@nl-alkemade.com for more information about a partnership.', url: 'partners.html', context: 'cooperation' },
       { q: ['growers', 'for whom', 'who are your clients'], a: 'Our services are not only for growers, but also for third parties such as flower exporters, flower wholesalers and retailers. We work with partners worldwide and have more than 50 partners in different countries.', url: 'partners.html', context: 'cooperation' },
-      { q: ['team', 'people', 'who works', 'employees'], a: 'Our team consists of experienced professionals: Bartek Liskowski (Manager Operations), Claudia Alkemade (Account Manager), Aleksandra Wolska (Junior Account Manager), Mike Hofman (Logistics Coordinator) and Anna Anderlova (Administration).', url: 'mensen.html', context: 'company' }
+      { q: ['team', 'people', 'who works', 'employees'], a: 'Our team consists of experienced professionals: Claudia Alkemade (Account Manager), Aleksandra Wolska (Junior Account Manager) and Mike Hofman (Logistics Coordinator).', url: 'mensen.html', context: 'company' }
     ]
   },
   es: {
@@ -98,7 +98,7 @@ const searchData = {
       { title: 'Noticias', url: 'nieuws.html', keywords: ['noticias', 'actualizaciones', 'artículos', 'últimas noticias'], content: 'Últimas noticias y actualizaciones de Alkemade Flowers International. Desde 2026, es posible hacer mono bunches y ramos de banda. También haremos un uso inteligente de la IA.', category: 'noticias' },
       { title: 'Contacto', url: 'contact.html', keywords: ['contacto', 'dirección', 'teléfono', 'email', 'ubicación', 'contactar', 'llamar'], content: 'Contacte con Alkemade Flowers. Ubicado en FloraHolland Aalsmeer: Legmeerdijk 313, 1431GB Aalsmeer. Teléfono: +31-297-567148. Email: alkemade@nl-alkemade.com', category: 'contacto' },
       { title: 'Ubicación', url: 'vestiging.html', keywords: ['ubicación', 'dirección', 'dónde', 'floraholland', 'aalsmeer'], content: 'Nuestra ubicación está en FloraHolland Aalsmeer, la subasta de flores más grande del mundo. Dirección de visita: Legmeerdijk 313, 1431GB Aalsmeer.', category: 'ubicación' },
-      { title: 'Equipo', url: 'mensen.html', keywords: ['equipo', 'personas', 'empleados', 'personal', 'quiénes trabajan'], content: 'Conozca a nuestro equipo: Bartek Liskowski (Gerente de Operaciones), Claudia Alkemade (Gerente de Cuentas), y más.', category: 'empresa' },
+      { title: 'Equipo', url: 'mensen.html', keywords: ['equipo', 'personas', 'empleados', 'personal', 'quiénes trabajan'], content: 'Conozca a nuestro equipo: Claudia Alkemade (Gerente de Cuentas), Aleksandra Wolska y Mike Hofman.', category: 'empresa' },
       { title: 'Clientes', url: 'klanten.html', keywords: ['clientes', 'satisfechos', 'socios', 'cooperación'], content: 'Trabajamos con productores y socios en todo el mundo. 50+ socios en todo el mundo, 27+ años de experiencia, 100% satisfacción del cliente.', category: 'cooperación' }
     ],
     faq: [
@@ -113,7 +113,7 @@ const searchData = {
       { q: ['subasta', 'floraholland', 'preparación para subasta'], a: 'Preparamos flores para subasta y proporcionamos transporte a varios sitios de subasta, incluyendo FloraHolland Aalsmeer. Nuestra preparación para subasta asegura una presentación óptima de sus flores en la subasta.', url: 'services.html', context: 'servicios' },
       { q: ['ser socio', 'cooperar', 'cooperación', 'asociación', 'cómo ser socio'], a: '¿Le gustaría ser socio? Ofrecemos un paquete completo de servicios para productores y terceros con enfoque en la gestión perfecta de la cadena de suministro. Contáctenos al +31-297-567148 o alkemade@nl-alkemade.com para más información sobre una asociación.', url: 'partners.html', context: 'cooperación' },
       { q: ['productores', 'para quién', 'quiénes son sus clientes'], a: 'Nuestros servicios no son solo para productores, sino también para terceros como exportadores de flores, mayoristas de flores y minoristas. Trabajamos con socios en todo el mundo y tenemos más de 50 socios en diferentes países.', url: 'partners.html', context: 'cooperación' },
-      { q: ['equipo', 'personas', 'quiénes trabajan', 'empleados'], a: 'Nuestro equipo está formado por profesionales experimentados: Bartek Liskowski (Gerente de Operaciones), Claudia Alkemade (Gerente de Cuentas), Aleksandra Wolska (Gerente de Cuentas Junior), Mike Hofman (Coordinador de Logística) y Anna Anderlova (Administración).', url: 'mensen.html', context: 'empresa' }
+      { q: ['equipo', 'personas', 'quiénes trabajan', 'empleados'], a: 'Nuestro equipo está formado por profesionales experimentados: Claudia Alkemade (Gerente de Cuentas), Aleksandra Wolska (Gerente de Cuentas Junior) y Mike Hofman (Coordinador de Logística).', url: 'mensen.html', context: 'empresa' }
     ]
   }
 };
