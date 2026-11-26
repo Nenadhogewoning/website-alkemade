@@ -783,10 +783,12 @@ class AISearch {
             <line x1="8" y1="8" x2="14" y2="14"/>
             <line x1="14" y1="8" x2="8" y2="14"/>
           </svg>
-          <p>${ui.noResults} "<strong>${query}</strong>"</p>
+          <p>${ui.noResults} "<strong></strong>"</p>
           <p style="font-size: 0.9rem;">${ui.tryOther}</p>
         </div>
       `;
+      // Render the visitor's query as text, never as HTML.
+      container.querySelector('.search-no-results strong').textContent = query;
       return;
     }
     
