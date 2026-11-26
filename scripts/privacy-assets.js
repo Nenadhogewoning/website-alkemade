@@ -15,7 +15,6 @@ const stockUrls=[
   "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80",
   "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=600&q=80",
   "https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=600&q=80",
-  "https://images.unsplash.com/photo-1518882605630-8eb568c99c28?w=600&q=80",
   "https://images.unsplash.com/photo-1508610048659-a06b669e3321?w=600&q=80",
   "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80",
   "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&q=80",
