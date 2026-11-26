@@ -377,13 +377,3 @@ p { margin-bottom: var(--space-sm); color: var(--color-gray-dark); }
 
 /* Language links retain the existing dropdown styling and are keyboard accessible. */
 html:not(.js-language-menu) .lang-dropdown:focus-within .lang-menu { opacity:1; visibility:visible; transform:translateY(0); }
-
-/* Optional external maps: same card and reserved height, no remote resource until opt-in. */
-.map-consent { background:var(--color-light); }
-.map-consent-placeholder { min-height:400px; padding:24px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:12px; }
-.map-consent-placeholder svg { color:var(--color-primary); }
-.map-consent-placeholder p { max-width:42ch; margin:0; }
-.map-consent-placeholder a { text-decoration:underline; font-size:.85rem; }
-.map-consent-frame { width:100%; min-height:400px; }
-.map-consent-hide { width:100%; color:var(--color-dark); background:var(--color-light); border-radius:0; }
-.map-consent [hidden] { display:none !important; }

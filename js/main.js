@@ -192,39 +192,6 @@ let currentLang = staticLanguage || document.documentElement.lang || 'nl';
 document.addEventListener('DOMContentLoaded', function() {
   if (!staticLanguage) setLanguage(currentLang);
   document.documentElement.classList.add('js-language-menu');
-  // Consent is per map and per page visit; never stored in browser storage.
-  document.querySelectorAll('.map-consent').forEach(box=>{
-    const placeholder=box.querySelector('.map-consent-placeholder');
-    const frameBox=box.querySelector('.map-consent-frame');
-    const load=box.querySelector('.map-consent-load');
-    const hide=box.querySelector('.map-consent-hide');
-    load.addEventListener('click',()=>{
-      if(frameBox.firstChild)return;
-      const url=new URL(box.dataset.mapUrl);
-      if(url.origin!=='https://www.google.com'||url.pathname!=='/maps/embed')return;
-      url.searchParams.set('hl',document.documentElement.lang);
-      const frame=document.createElement('iframe');
-      frame.title=box.dataset.mapTitle;
-      frame.width='100%';
-      frame.height='400';
-      frame.style.border='0';
-      frame.referrerPolicy='no-referrer';
-      frame.allowFullscreen=true;
-      frame.src=url.href;
-      frameBox.appendChild(frame);
-      placeholder.hidden=true;
-      frameBox.hidden=false;
-      hide.hidden=false;
-      hide.focus();
-    });
-    hide.addEventListener('click',()=>{
-      frameBox.replaceChildren();
-      frameBox.hidden=true;
-      hide.hidden=true;
-      placeholder.hidden=false;
-      load.focus();
-    });
-  });
   
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   // Avoid hiding the entire document after the browser has started painting.

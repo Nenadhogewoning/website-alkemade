@@ -102,34 +102,14 @@ async function prepareStock(dist,images) {
   }
   return {before,after,count:stockUrls.length};
 }
-const copy={
-  nl:{heading:'Bekijk onze locatie',note:'Google Maps is uitgeschakeld. Als u de kaart laadt, ontvangt Google technische gegevens zoals uw IP-adres en kan Google cookies of vergelijkbare technieken gebruiken.',load:'Google Maps laden',hide:'Kaart sluiten (toestemming intrekken)',title:'Google Maps – Alkemade International',policy:'Privacybeleid van Google'},
-  en:{heading:'View our location',note:'Google Maps is disabled. If you load the map, Google receives technical data such as your IP address and may use cookies or similar technologies.',load:'Load Google Maps',hide:'Close map (withdraw consent)',title:'Google Maps – Alkemade International',policy:'Google Privacy Policy'},
-  es:{heading:'Vea nuestra ubicación',note:'Google Maps está desactivado. Si carga el mapa, Google recibe datos técnicos, como su dirección IP, y puede utilizar cookies o tecnologías similares.',load:'Cargar Google Maps',hide:'Cerrar mapa (retirar consentimiento)',title:'Google Maps – Alkemade International',policy:'Política de privacidad de Google'}
-};
+// Preserve existing automatic Google Maps embeds and harden external links.
 function protectDocument(page,html,lang) {
-  const t=copy[lang];
-  if(!t)throw Error('Unknown language');
-  // Replace rather than conceal the iframe: no src, preload or third-party
-  // request until the visitor activates the button. The address and original
-  // external directions link remain outside this component.
-  html=html.replace(/<iframe\b[\s\S]*?<\/iframe>/gi,tag=>{
-    const url=tag.match(/\bsrc="([^"]+)"/)?.[1];
-    if(!url||!url.startsWith('https://www.google.com/maps/embed?'))throw Error('Unexpected iframe on '+page);
-    return '<div class="map-consent" data-map-url="'+url+'" data-map-title="'+t.title+'">'+
-      '<div class="map-consent-placeholder"><svg aria-hidden="true" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
-      '<h3>'+t.heading+'</h3><p>Legmeerdijk 313, 1431 GB Aalsmeer</p><p>'+t.note+'</p>'+
-      '<a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">'+t.policy+'</a>'+
-      '<button type="button" class="btn btn-primary map-consent-load">'+t.load+'</button></div>'+
-      '<div class="map-consent-frame" hidden></div><button type="button" class="btn map-consent-hide" hidden>'+t.hide+'</button></div>';
-  });
-  // External navigation remains explicit and does not send the referring URL.
   return html.replace(/<a\b[^>]*target="_blank"[^>]*>/gi,tag=>/\brel=/.test(tag)?tag:tag.replace(/>$/,' rel="noopener noreferrer">'));
 }
 function removeExternalFonts(html) {
   return html.replace(/<link\b[^>]*href="https:\/\/fonts\.(?:googleapis|gstatic)\.com[^"]*"[^>]*>\s*/gi,'');
 }
 function assertPrivateMarkup(page,html) {
-  if(/<iframe\b/i.test(html)||/<(?:img|link|script)\b[^>]*(?:src|href)="https:\/\/(?:fonts\.googleapis\.com|fonts\.gstatic\.com|images\.unsplash\.com)/i.test(html))throw Error('Unexpected external resource on '+page);
+  if(/<(?:img|link|script)\b[^>]*(?:src|href)="https:\/\/(?:fonts\.googleapis\.com|fonts\.gstatic\.com|images\.unsplash\.com)/i.test(html))throw Error('Unexpected external resource on '+page);
 }
 module.exports={prepareFonts,prepareStock,protectDocument,removeExternalFonts,assertPrivateMarkup,stockUrls};
