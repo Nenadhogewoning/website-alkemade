@@ -20,7 +20,6 @@ const assets = [
   ['LPC Logo.png','lpc.webp',900,700,true],
   ['Logo Blooms.png','blooms.webp',900,700,true],
   ['Logo EMF.png','emf.webp',900,700,true],
-  ['Logo JP Hogewoning.png','jp-hogewoning.webp',900,700,true],
   ['Logo Klaver.png','klaver.webp',900,700,true],
   ['Nakash Dror Logo.png','nakash-dror.webp',900,700,true],
   ['Uki Farm Logo .png','uki-farm.webp',900,700,true],
@@ -40,6 +39,80 @@ const assets = [
   ['foto 9.jpeg','foto-9.webp',1600,1600,false]
 ];
 
+// Responsive candidates are generated only if they are smaller than the primary.
+const widths = [240, 320, 480, 640, 768, 1024, 1440];
+const placeholder = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+const gridSizes = '(max-width: 650px) calc(100vw - 24px), (max-width: 1000px) 55vw, 430px';
+const partnerSizes = '(max-width: 480px) 240px, (max-width: 768px) 350px, 400px';
+
+function splitSizes(meta, height) {
+  // object-fit: cover can require more source pixels than the visible box width.
+  const cover = Math.ceil(height * meta.width / meta.height);
+  return '(max-width: 1024px) max(calc(100vw - 48px), ' + cover + 'px), ' +
+    Math.max(528, cover) + 'px';
+}
+
+function policy(page, tag, src, index, meta) {
+  if (tag.includes('class="logo-img"')) return {loading:'eager',sizes:'201px'};
+  if (tag.includes('class="footer-logo-img"')) return {loading:'lazy',sizes:'167px'};
+  if (page === 'index.html' && src === 'images/foto 5.jpeg')
+    return {loading:'eager',high:true,hero:true,sizes:Math.ceil(500 * Math.max(1,meta.width/meta.height))+'px'};
+  if (page === 'index.html') return {loading:'lazy',sizes:splitSizes(meta,500)};
+  if (page === 'klanten.html' || (page === 'services.html' && src === 'images/Foto 10.png'))
+    return {loading:'eager',high:true,sizes:splitSizes(meta,400)};
+  if (page === 'over-ons.html') return {loading:index===1?'eager':'lazy',high:index===1,sizes:splitSizes(meta,500)};
+  if (page === 'partners.html') {
+    if (src === 'images/foto 9.jpeg') return {loading:'lazy',sizes:splitSizes(meta,500)};
+    return {loading:index<=2?'eager':'lazy',sizes:partnerSizes};
+  }
+  if (page === 'mensen.html') return {loading:index<=3?'eager':'lazy',sizes:gridSizes};
+  if (page === 'nieuws.html') return {loading:index===1?'eager':'lazy',high:index===1};
+  return {loading:'lazy',sizes:gridSizes};
+}
+
+function withAttr(tag, name, value) {
+  // Preserve author-provided dimensions and other explicit attributes.
+  if (new RegExp('\\s'+name+'\\s*=', 'i').test(tag)) return tag;
+  return tag.replace(/>$/, ' '+name+'="'+value+'">');
+}
+
+function responsiveMarkup(page, html, images) {
+  let index = 0;
+  const stats = {eager:0,lazy:0,responsive:0,dimensions:0,high:0,hero:0};
+  const result = html.replace(/<img\b[^>]*>/gi, original => {
+    const match = original.match(/\bsrc="([^"]+)"/i);
+    if (!match) throw new Error('Missing image src in '+page);
+    const src = match[1];
+    const meta = images.get(src);
+    if (src.startsWith('images/') && !meta) throw new Error('Missing image metadata: '+src);
+    const plan = policy(page,original,src,index++,meta);
+    let tag = withAttr(original,'loading',plan.loading);
+    stats[plan.loading]++;
+    if (plan.loading==='lazy') tag=withAttr(tag,'decoding','async');
+    if (plan.high) { tag=withAttr(tag,'fetchpriority','high'); stats.high++; }
+    if (meta) {
+      tag=tag.replace('src="'+src+'"','src="'+meta.url+'"');
+      tag=withAttr(tag,'width',meta.width);
+      tag=withAttr(tag,'height',meta.height);
+      stats.dimensions++;
+      if (meta.candidates.length>1 && plan.sizes) {
+        const srcset=meta.candidates.map(x=>x.url+' '+x.width+'w').join(', ');
+        tag=withAttr(tag,'srcset',srcset);
+        tag=withAttr(tag,'sizes',plan.sizes);
+        stats.responsive++;
+      }
+    }
+    // This image is already hidden by CSS at <= 1024px. A matching picture
+    // source avoids requesting the desktop photo at all, without JavaScript.
+    if (plan.hero) {
+      tag='<picture><source media="(max-width: 1024px)" srcset="'+placeholder+'">'+tag+'</picture>';
+      stats.hero++;
+    }
+    return tag;
+  });
+  return {html:result,stats};
+}
+
 async function main() {
   await fs.rm(dist, { recursive: true, force: true });
   await fs.mkdir(path.join(dist, 'images', 'optimized'), { recursive: true });
@@ -48,44 +121,55 @@ async function main() {
       recursive: true, filter: source => !['.DS_Store','optimized'].includes(path.basename(source))
     });
   }
-  const replacements = new Map();
-  let before = 0, after = 0;
+  const images = new Map();
+  let before = 0, after = 0, variants = 0;
   for (const [filename,output,width,height,logo] of assets) {
     const source = path.join(root,'images',filename);
     const original = await fs.stat(source);
     const metadata = await sharp(source).metadata();
-    const {data,info} = await sharp(source)
-      .rotate()
+    const options = logo ? {lossless:true,effort:5} : {quality:88,alphaQuality:100,effort:5};
+    const {data,info} = await sharp(source).rotate()
       .resize({width,height,fit:'inside',withoutEnlargement:true})
-      .webp(logo ? {lossless:true,effort:5} : {quality:88,alphaQuality:100,effort:5})
-      .toBuffer({resolveWithObject:true});
-    // Keep original format whenever the conversion is not smaller.
+      .webp(options).toBuffer({resolveWithObject:true});
     const smaller = data.length < original.size;
-    if (smaller) {
-      await fs.writeFile(path.join(dist,'images','optimized',output),data);
-      replacements.set('images/'+filename,'images/optimized/'+output);
+    const primaryUrl = smaller ? 'images/optimized/'+output : 'images/'+encodeURIComponent(filename);
+    if (smaller) await fs.writeFile(path.join(dist,'images','optimized',output),data);
+    const swapped = [5,6,7,8].includes(metadata.orientation);
+    const w = smaller ? info.width : swapped ? metadata.height : metadata.width;
+    const h = smaller ? info.height : swapped ? metadata.width : metadata.height;
+    const bytes = smaller ? data.length : original.size;
+    const candidates = [];
+    for (const candidateWidth of widths) {
+      if (candidateWidth >= w || candidateWidth < (logo?240:480)) continue;
+      const variant = await sharp(source).rotate()
+        .resize({width:candidateWidth,withoutEnlargement:true})
+        .webp(options).toBuffer({resolveWithObject:true});
+      if (variant.data.length >= bytes || variant.info.width >= w) continue;
+      const name=output.replace(/\.webp$/, '-'+variant.info.width+'w.webp');
+      await fs.writeFile(path.join(dist,'images','optimized',name),variant.data);
+      candidates.push({url:'images/optimized/'+name,width:variant.info.width,bytes:variant.data.length});
+      variants++;
     }
-    before += original.size;
-    after += smaller ? data.length : original.size;
-    console.log(JSON.stringify({kind:'image',filename,output:smaller?output:filename,
-      originalBytes:original.size,servedBytes:smaller?data.length:original.size,
-      originalWidth:metadata.width,originalHeight:metadata.height,
-      width:smaller?info.width:metadata.width,height:smaller?info.height:metadata.height,
-      alpha:!!metadata.hasAlpha,optimized:smaller}));
+    candidates.push({url:primaryUrl,width:w,bytes});
+    images.set('images/'+filename,{url:primaryUrl,width:w,height:h,candidates});
+    before+=original.size; after+=bytes;
+    console.log(JSON.stringify({kind:'image',filename,output:primaryUrl,originalBytes:original.size,
+      servedBytes:bytes,width:w,height:h,variants:candidates}));
   }
+  // The recently updated Hogewoning Flowers logo is already only ~4.8 KB.
+  // Keep it byte-for-byte unchanged, including its original accessible name/link.
+  const partner='images/hogewoning-flowers.webp';
+  const pm=await sharp(path.join(root,partner)).metadata();
+  const pb=(await fs.stat(path.join(root,partner))).size;
+  images.set(partner,{url:partner,width:pm.width,height:pm.height,candidates:[{url:partner,width:pm.width,bytes:pb}]});
+  before+=pb; after+=pb;
   for (const page of pages) {
-    let html = await fs.readFile(path.join(root,page),'utf8');
-    let total = 0;
-    for (const [source,target] of replacements) {
-      const marker = 'src="'+source+'"';
-      const parts = html.split(marker);
-      total += parts.length-1;
-      html = parts.join('src="'+target+'"');
-    }
-    await fs.writeFile(path.join(dist,page),html);
-    console.log(JSON.stringify({kind:'page',page,replacements:total}));
+    const html=await fs.readFile(path.join(root,page),'utf8');
+    const rendered=responsiveMarkup(page,html,images);
+    await fs.writeFile(path.join(dist,page),rendered.html);
+    console.log(JSON.stringify({kind:'page',page,...rendered.stats}));
   }
   console.log(JSON.stringify({kind:'summary',originalBytes:before,servedBytes:after,
-    optimized:replacements.size,total:assets.length}));
+    responsiveVariants:variants,localAssets:images.size}));
 }
 main().catch(error => { console.error('Image build failed:', error.message); process.exitCode=1; });
