@@ -9,7 +9,8 @@ const { createHash } = require('node:crypto');
 const root = path.resolve(__dirname, '..');
 const dist = path.join(root, 'dist');
 
-const { pages, canonicalize, sitemap, robots } = require('./seo');
+const { pages, languages, outputFile, canonicalize, sitemap, robots } = require('./seo');
+const { localizeDocument } = require('./localize');
 const { onPage, improveContent } = require('./on-page-seo');
 // Each entry is [source filename, output filename, maximum width, maximum height, logo].
 const assets = [
@@ -204,9 +205,14 @@ async function main() {
   const urls = await versionAssets(images);
   for (const page of pages) {
     const html=await fs.readFile(path.join(root,page),'utf8');
-    const rendered=responsiveMarkup(page,improveContent(page,html),images);
-    await fs.writeFile(path.join(dist,page),canonicalize(page,onPage(page,optimizeDocument(rendered.html,urls))));
-    console.log(JSON.stringify({kind:'page',page,...rendered.stats}));
+    const improved=improveContent(page,html);
+    for(const lang of languages) {
+      const rendered=responsiveMarkup(page,localizeDocument(page,improved,lang),images);
+      const output=path.join(dist,outputFile(page,lang));
+      await fs.mkdir(path.dirname(output),{recursive:true});
+      await fs.writeFile(output,canonicalize(page,onPage(page,optimizeDocument(rendered.html,urls),lang),lang));
+      console.log(JSON.stringify({kind:'page',page,lang,...rendered.stats}));
+    }
   }
   // Reuse the original company artwork, with neutral white padding.
   const brandSource=path.join(root,'images','Logo alkemade website.png');
@@ -219,7 +225,7 @@ async function main() {
   const errorHtml = errorPage.replace('/css/style.css',urls.get('css/style.css'))
     .replace('/images/Logo%20alkemade%20website.png',images.get('images/Logo alkemade website.png').url);
   await fs.writeFile(path.join(dist,'404.html'),errorHtml);
-  console.log(JSON.stringify({kind:'seo',canonicalPages:pages.length,sitemapUrls:pages.length}));
+  console.log(JSON.stringify({kind:'seo',canonicalPages:pages.length*languages.length,sitemapUrls:pages.length*languages.length}));
   console.log(JSON.stringify({kind:'summary',originalBytes:before,servedBytes:after,
     responsiveVariants:variants,localAssets:images.size,versionedAssets:urls.size}));
 }

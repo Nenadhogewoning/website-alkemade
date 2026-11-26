@@ -29,6 +29,606 @@
       }
     },
     {
+      "src": "/en",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/"
+      }
+    },
+    {
+      "src": "/en/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/"
+      }
+    },
+    {
+      "src": "/en/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/en/index.html"
+    },
+    {
+      "src": "/es",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/"
+      }
+    },
+    {
+      "src": "/es/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/"
+      }
+    },
+    {
+      "src": "/es/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/es/index.html"
+    },
+    {
+      "src": "/en/contact",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/contact/"
+      }
+    },
+    {
+      "src": "/en/contact/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/contact/"
+      }
+    },
+    {
+      "src": "/en/contact/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/en/contact/index.html"
+    },
+    {
+      "src": "/es/contacto",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/contacto/"
+      }
+    },
+    {
+      "src": "/es/contacto/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/contacto/"
+      }
+    },
+    {
+      "src": "/es/contacto/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/es/contacto/index.html"
+    },
+    {
+      "src": "/en/gallery",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/gallery/"
+      }
+    },
+    {
+      "src": "/en/gallery/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/gallery/"
+      }
+    },
+    {
+      "src": "/en/gallery/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/en/gallery/index.html"
+    },
+    {
+      "src": "/es/galeria",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/galeria/"
+      }
+    },
+    {
+      "src": "/es/galeria/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/galeria/"
+      }
+    },
+    {
+      "src": "/es/galeria/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/es/galeria/index.html"
+    },
+    {
+      "src": "/en/clients",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/clients/"
+      }
+    },
+    {
+      "src": "/en/clients/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/clients/"
+      }
+    },
+    {
+      "src": "/en/clients/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/en/clients/index.html"
+    },
+    {
+      "src": "/es/clientes",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/clientes/"
+      }
+    },
+    {
+      "src": "/es/clientes/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/clientes/"
+      }
+    },
+    {
+      "src": "/es/clientes/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/es/clientes/index.html"
+    },
+    {
+      "src": "/en/team",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/team/"
+      }
+    },
+    {
+      "src": "/en/team/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/team/"
+      }
+    },
+    {
+      "src": "/en/team/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/en/team/index.html"
+    },
+    {
+      "src": "/es/equipo",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/equipo/"
+      }
+    },
+    {
+      "src": "/es/equipo/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/equipo/"
+      }
+    },
+    {
+      "src": "/es/equipo/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/es/equipo/index.html"
+    },
+    {
+      "src": "/en/news",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/news/"
+      }
+    },
+    {
+      "src": "/en/news/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/news/"
+      }
+    },
+    {
+      "src": "/en/news/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/en/news/index.html"
+    },
+    {
+      "src": "/es/noticias",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/noticias/"
+      }
+    },
+    {
+      "src": "/es/noticias/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/noticias/"
+      }
+    },
+    {
+      "src": "/es/noticias/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/es/noticias/index.html"
+    },
+    {
+      "src": "/en/about",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/about/"
+      }
+    },
+    {
+      "src": "/en/about/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/about/"
+      }
+    },
+    {
+      "src": "/en/about/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/en/about/index.html"
+    },
+    {
+      "src": "/es/nosotros",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/nosotros/"
+      }
+    },
+    {
+      "src": "/es/nosotros/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/nosotros/"
+      }
+    },
+    {
+      "src": "/es/nosotros/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/es/nosotros/index.html"
+    },
+    {
+      "src": "/en/partners",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/partners/"
+      }
+    },
+    {
+      "src": "/en/partners/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/partners/"
+      }
+    },
+    {
+      "src": "/en/partners/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/en/partners/index.html"
+    },
+    {
+      "src": "/es/socios",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/socios/"
+      }
+    },
+    {
+      "src": "/es/socios/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/socios/"
+      }
+    },
+    {
+      "src": "/es/socios/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/es/socios/index.html"
+    },
+    {
+      "src": "/en/services",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/services/"
+      }
+    },
+    {
+      "src": "/en/services/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/services/"
+      }
+    },
+    {
+      "src": "/en/services/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/en/services/index.html"
+    },
+    {
+      "src": "/es/servicios",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/servicios/"
+      }
+    },
+    {
+      "src": "/es/servicios/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/servicios/"
+      }
+    },
+    {
+      "src": "/es/servicios/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/es/servicios/index.html"
+    },
+    {
+      "src": "/en/location",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/location/"
+      }
+    },
+    {
+      "src": "/en/location/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/en/location/"
+      }
+    },
+    {
+      "src": "/en/location/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/en/location/index.html"
+    },
+    {
+      "src": "/es/ubicacion",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/ubicacion/"
+      }
+    },
+    {
+      "src": "/es/ubicacion/index\\.html",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "/es/ubicacion/"
+      }
+    },
+    {
+      "src": "/es/ubicacion/",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "dest": "/es/ubicacion/index.html"
+    },
+    {
       "handle": "filesystem"
     },
     {

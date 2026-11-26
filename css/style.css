@@ -374,3 +374,6 @@ p { margin-bottom: var(--space-sm); color: var(--color-gray-dark); }
 .footer-title a { color: inherit; }
 .footer-title a:hover, .footer-title a:focus-visible { text-decoration: underline; }
 .breadcrumb .breadcrumb-gallery { color: inherit; }
+
+/* Language links retain the existing dropdown styling and are keyboard accessible. */
+html:not(.js-language-menu) .lang-dropdown:focus-within .lang-menu { opacity:1; visibility:visible; transform:translateY(0); }
