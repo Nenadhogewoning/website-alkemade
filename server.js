@@ -1,6 +1,7 @@
 const express = require('express');
 const contactHandler = require('./api/contact');
 const path = require('path');
+const { sitemap, robots } = require('./scripts/seo');
 require('dotenv').config();
 
 const app = express();
@@ -11,25 +12,15 @@ app.use(express.json({ limit: '32kb' }));
 app.get('/api/contact', contactHandler);
 app.post('/api/contact', contactHandler);
 
-// Serve static files (alleen voor niet-API routes)
-app.use((req, res, next) => {
-  // Skip static files voor API routes
-  if (req.path.startsWith('/api/')) {
-    return next();
-  }
-  next();
-});
-
-// Serve static files
+// Local development mirrors production SEO endpoints and error status codes.
+app.get('/index.html', (req,res) => res.redirect(308, '/'+(req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '')));
+app.get('/robots.txt', (req,res) => res.type('text/plain').send(robots()));
+app.get('/sitemap.xml', (req,res) => res.type('application/xml').send(sitemap()));
+app.get('/404.html', (req,res) => res.status(404).sendFile(path.join(__dirname,'404.html')));
 app.use(express.static(__dirname));
-
-// Fallback: serve index.html voor alle andere GET routes
-app.get('*', (req, res) => {
-  // Skip API routes
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ success: false, error: 'API endpoint niet gevonden' });
-  }
-  res.sendFile(path.join(__dirname, req.path === '/' ? 'index.html' : req.path));
+app.use((req,res) => {
+  if (req.path.startsWith('/api/')) return res.status(404).json({ success:false, error:'API endpoint niet gevonden' });
+  res.status(404).sendFile(path.join(__dirname,'404.html'));
 });
 
 app.listen(PORT, () => {

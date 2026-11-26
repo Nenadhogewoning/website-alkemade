@@ -9,8 +9,7 @@ const { createHash } = require('node:crypto');
 const root = path.resolve(__dirname, '..');
 const dist = path.join(root, 'dist');
 
-const pages = ['index.html','contact.html','galerij.html','klanten.html','mensen.html',
-  'nieuws.html','over-ons.html','partners.html','services.html','vestiging.html'];
+const { pages, canonicalize, sitemap, robots } = require('./seo');
 // Each entry is [source filename, output filename, maximum width, maximum height, logo].
 const assets = [
   ['Logo alkemade website.png','alkemade-logo.webp',1000,180,true],
@@ -205,9 +204,16 @@ async function main() {
   for (const page of pages) {
     const html=await fs.readFile(path.join(root,page),'utf8');
     const rendered=responsiveMarkup(page,html,images);
-    await fs.writeFile(path.join(dist,page),optimizeDocument(rendered.html,urls));
+    await fs.writeFile(path.join(dist,page),canonicalize(page,optimizeDocument(rendered.html,urls)));
     console.log(JSON.stringify({kind:'page',page,...rendered.stats}));
   }
+  await fs.writeFile(path.join(dist,'sitemap.xml'),sitemap());
+  await fs.writeFile(path.join(dist,'robots.txt'),robots());
+  const errorPage = await fs.readFile(path.join(root,'404.html'),'utf8');
+  const errorHtml = errorPage.replace('/css/style.css',urls.get('css/style.css'))
+    .replace('/images/Logo%20alkemade%20website.png',images.get('images/Logo alkemade website.png').url);
+  await fs.writeFile(path.join(dist,'404.html'),errorHtml);
+  console.log(JSON.stringify({kind:'seo',canonicalPages:pages.length,sitemapUrls:pages.length}));
   console.log(JSON.stringify({kind:'summary',originalBytes:before,servedBytes:after,
     responsiveVariants:variants,localAssets:images.size,versionedAssets:urls.size}));
 }
