@@ -400,28 +400,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
-  const contactForm = document.querySelector('.contact-form form');
-  if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const btn = this.querySelector('button[type="submit"]');
-      const originalText = btn.textContent;
-      btn.textContent = currentLang === 'nl' ? 'Verzenden...' : currentLang === 'en' ? 'Sending...' : 'Enviando...';
-      btn.disabled = true;
-      
-      setTimeout(() => {
-        btn.textContent = '✓ ' + (currentLang === 'nl' ? 'Verzonden!' : currentLang === 'en' ? 'Sent!' : '¡Enviado!');
-        btn.style.background = '#4CAF50';
-        setTimeout(() => {
-          this.reset();
-          btn.textContent = originalText;
-          btn.style.background = '';
-          btn.disabled = false;
-        }, 2000);
-      }, 1500);
-    });
-  }
-  
   // Smooth scroll for anchor links
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
