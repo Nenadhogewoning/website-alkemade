@@ -224,32 +224,42 @@
           if (!response.ok || typeof config.siteKey !== 'string' || !config.siteKey) throw new Error('Missing widget configuration');
           await new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+            const timeout = setTimeout(() => {
+              delete window.alkemadeTurnstileLoaded;
+              reject(new Error('Turnstile load timeout'));
+            }, 15000);
+            window.alkemadeTurnstileLoaded = () => {
+              clearTimeout(timeout);
+              delete window.alkemadeTurnstileLoaded;
+              resolve();
+            };
+            script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=alkemadeTurnstileLoaded';
             script.async = true;
-            const timeout = setTimeout(() => reject(new Error('Widget load timeout')), 15000);
-            script.onload = () => { clearTimeout(timeout); resolve(); };
-            script.onerror = () => { clearTimeout(timeout); reject(new Error('Widget load failed')); };
+            script.onerror = () => {
+              clearTimeout(timeout);
+              delete window.alkemadeTurnstileLoaded;
+              reject(new Error('Turnstile script load failed'));
+            };
             document.head.appendChild(script);
           });
-          window.turnstile.ready(() => {
-            try {
-              widgetId = window.turnstile.render('#contactTurnstile', {
-                sitekey: config.siteKey,
-                action: 'contact_form',
-                theme: 'light',
-                size: 'flexible',
-                language: 'auto',
-                'response-field': false,
-                callback: value => { token = value; setVerificationState(''); },
-                'expired-callback': () => { token = ''; setVerificationState('retry'); },
-                'timeout-callback': () => { token = ''; setVerificationState('retry'); },
-                'error-callback': () => { token = ''; setVerificationState('unavailable'); }
-              });
-            } catch {
+          widgetId = window.turnstile.render('#contactTurnstile', {
+            sitekey: config.siteKey,
+            action: 'contact_form',
+            theme: 'light',
+            size: 'flexible',
+            language: 'auto',
+            'response-field': false,
+            callback: value => { token = value; setVerificationState(''); },
+            'expired-callback': () => { token = ''; setVerificationState('retry'); },
+            'timeout-callback': () => { token = ''; setVerificationState('retry'); },
+            'error-callback': code => {
+              console.warn('Turnstile widget error:', code);
+              token = '';
               setVerificationState('unavailable');
             }
           });
-        } catch {
+        } catch (error) {
+          console.warn('Turnstile initialization failed:', error.message);
           setVerificationState('unavailable');
         }
       }
