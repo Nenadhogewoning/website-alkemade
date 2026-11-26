@@ -147,6 +147,7 @@ class MiniLLM {
     });
     
     this.vocab = Array.from(vocab);
+    this.vocabIndex = new Map(this.vocab.map((word, index) => [word, index]));
   }
 
   // Tokenize text into words (simple approach)
@@ -168,8 +169,8 @@ class MiniLLM {
     });
     
     tokens.forEach(token => {
-      const index = this.vocab.indexOf(token);
-      if (index !== -1) {
+      const index = this.vocabIndex.get(token);
+      if (index !== undefined) {
         // TF-IDF-like weighting
         const tf = tokenCounts[token] / tokens.length;
         vector[index] = tf;
@@ -304,7 +305,8 @@ class AISearch {
   constructor() {
     this.isOpen = false;
     this.currentLang = this.getWebsiteLanguage();
-    this.llm = new MiniLLM();
+    this.llm = null;
+    this.searchRevision = 0;
     this.init();
   }
   
@@ -742,6 +744,7 @@ class AISearch {
   }
   
   search(query) {
+    const revision = ++this.searchRevision;
     const resultsContainer = document.querySelector('.search-results');
     
     if (!query || query.length < 2) {
@@ -765,10 +768,12 @@ class AISearch {
     
     // Use Mini LLM for semantic search
     setTimeout(() => {
+      if (revision !== this.searchRevision || lang !== this.currentLang) return;
+      if (!this.llm) this.llm = new MiniLLM();
       const searchResults = this.llm.semanticSearch(query, lang, 8);
       const aiAnswer = this.llm.generateAnswer(query, searchResults, lang);
       this.displayResults(searchResults, aiAnswer, query, lang);
-    }, 800);
+    }, 0);
   }
   
   displayResults(searchResults, aiAnswer, query, lang) {

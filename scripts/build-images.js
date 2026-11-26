@@ -5,6 +5,7 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const sharp = require('sharp');
+const { createHash } = require('node:crypto');
 const root = path.resolve(__dirname, '..');
 const dist = path.join(root, 'dist');
 
@@ -113,6 +114,43 @@ function responsiveMarkup(page, html, images) {
   return {html:result,stats};
 }
 
+// Publish content-addressed copies while retaining the existing unversioned URLs.
+// Only fingerprinted paths receive immutable cache headers.
+async function versionAssets(images) {
+  const urls = new Map();
+  async function version(url) {
+    if (urls.has(url)) return urls.get(url);
+    const filename = decodeURIComponent(url);
+    const bytes = await fs.readFile(path.join(dist, filename));
+    const hash = createHash('sha256').update(bytes).digest('hex').slice(0,24);
+    const target = 'assets/'+hash+'/'+path.basename(filename);
+    await fs.mkdir(path.join(dist,'assets',hash),{recursive:true});
+    await fs.writeFile(path.join(dist,target),bytes);
+    const encoded = '/'+target.split('/').map(encodeURIComponent).join('/');
+    urls.set(url,encoded);
+    return encoded;
+  }
+  for (const url of ['css/style.css','js/main.js','js/search.js']) await version(url);
+  for (const meta of images.values()) {
+    meta.url = await version(meta.url);
+    for (const candidate of meta.candidates) candidate.url = await version(candidate.url);
+  }
+  return urls;
+}
+
+function optimizeDocument(html, urls) {
+  // Playfair Display was only declared in an unused custom property.
+  // Preserve the exact existing weights, styles and swap strategy of used fonts.
+  html = html.replace('&family=Playfair+Display:wght@400;500;600','');
+  html = html.replace('href="css/style.css"','href="'+urls.get('css/style.css')+'"');
+  // Keep scripts at their existing locations, preserving initialization order
+  // including page-specific inline contact/news handlers.
+  for (const url of ['js/main.js','js/search.js']) {
+    html = html.replace('src="'+url+'"','src="'+urls.get(url)+'"');
+  }
+  return html;
+}
+
 async function main() {
   await fs.rm(dist, { recursive: true, force: true });
   await fs.mkdir(path.join(dist, 'images', 'optimized'), { recursive: true });
@@ -163,13 +201,14 @@ async function main() {
   const pb=(await fs.stat(path.join(root,partner))).size;
   images.set(partner,{url:partner,width:pm.width,height:pm.height,candidates:[{url:partner,width:pm.width,bytes:pb}]});
   before+=pb; after+=pb;
+  const urls = await versionAssets(images);
   for (const page of pages) {
     const html=await fs.readFile(path.join(root,page),'utf8');
     const rendered=responsiveMarkup(page,html,images);
-    await fs.writeFile(path.join(dist,page),rendered.html);
+    await fs.writeFile(path.join(dist,page),optimizeDocument(rendered.html,urls));
     console.log(JSON.stringify({kind:'page',page,...rendered.stats}));
   }
   console.log(JSON.stringify({kind:'summary',originalBytes:before,servedBytes:after,
-    responsiveVariants:variants,localAssets:images.size}));
+    responsiveVariants:variants,localAssets:images.size,versionedAssets:urls.size}));
 }
 main().catch(error => { console.error('Image build failed:', error.message); process.exitCode=1; });
