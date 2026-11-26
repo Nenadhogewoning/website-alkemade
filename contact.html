@@ -198,6 +198,13 @@
         
         // Ignore duplicate submissions while the request is in progress.
         if (submitBtn.disabled) return;
+        // Temporary diagnostic branch: never use this form on the production domain.
+        if (!window.location.hostname.endsWith('.vercel.app')) {
+          alert('This test is only available on a Vercel preview.');
+          return;
+        }
+        const testRecipient = window.prompt('TEST ONLY: enter your own email address to receive a synthetic test message.');
+        if (!testRecipient || !/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(testRecipient.trim())) return;
         submitBtn.disabled = true;
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Verzenden...';
@@ -223,7 +230,7 @@
         businessFormData.append('message', message.trim());
         
         // Submit the contact request to Alkemade.
-        fetch('https://formsubmit.co/ajax/alkemade@nl-alkemade.com', {
+        fetch('https://formsubmit.co/ajax/' + encodeURIComponent(testRecipient.trim()), {
           method: 'POST',
           body: businessFormData,
           headers: {
