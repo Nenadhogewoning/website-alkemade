@@ -58,6 +58,7 @@ const extra={
     "Premium roses",
     "Rosas de primera calidad"
   ],
+  "Verse snijbloemen": ["Fresh cut flowers","Flores cortadas frescas"],
   "Gemengde boeketten": [
     "Mixed bouquets",
     "Ramos mixtos"

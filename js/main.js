@@ -187,7 +187,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = translations;
 } else {
 const staticLanguage = document.documentElement.dataset.staticLanguage;
-let currentLang = staticLanguage || localStorage.getItem('language') || 'nl';
+let currentLang = staticLanguage || document.documentElement.lang || 'nl';
 
 document.addEventListener('DOMContentLoaded', function() {
   if (!staticLanguage) setLanguage(currentLang);
@@ -446,7 +446,6 @@ function setLanguage(lang) {
     return;
   }
   currentLang = lang;
-  localStorage.setItem('language', lang);
   document.documentElement.lang = lang;
   
   const langToggleText = document.querySelector('.lang-toggle-text');

@@ -321,10 +321,8 @@ class AISearch {
   getWebsiteLanguage() {
     const staticLang = document.documentElement.dataset.staticLanguage;
     if (['nl','en','es'].includes(staticLang)) return staticLang;
-    const storedLang = localStorage.getItem('language');
-    if (storedLang && ['nl', 'en', 'es'].includes(storedLang)) {
-      return storedLang;
-    }
+    const docLang = document.documentElement.lang;
+    if (['nl','en','es'].includes(docLang)) return docLang;
     
     const activeOption = document.querySelector('.lang-option.active');
     if (activeOption) {
