@@ -54,7 +54,8 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 400; lin
 h1 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 300; letter-spacing: -0.02em; }
 h2 { font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.01em; }
 h3 { font-size: clamp(1.5rem, 2.5vw, 2rem); }
-h4 { font-size: 1.15rem; font-family: var(--font-body); font-weight: 600; }
+h4, h3.heading-h4 { font-size: 1.15rem; font-family: var(--font-body); font-weight: 600; letter-spacing: normal; }
+h2.heading-h3 { font-size: clamp(1.5rem, 2.5vw, 2rem); letter-spacing: normal; }
 p { margin-bottom: var(--space-sm); color: var(--color-gray-dark); }
 
 .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 var(--space-md); }
@@ -158,7 +159,7 @@ p { margin-bottom: var(--space-sm); color: var(--color-gray-dark); }
 .service-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: var(--color-accent); }
 .service-icon { width: 56px; height: 56px; background: var(--color-black); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-md); color: var(--color-accent); transition: var(--transition-base); }
 .service-card:hover .service-icon { background: var(--color-accent); color: var(--color-black); }
-.service-card h4 { margin-bottom: var(--space-xs); font-size: 1.1rem; }
+.service-card h4, .service-card h3.heading-h4 { margin-bottom: var(--space-xs); font-size: 1.1rem; }
 .service-card p { color: var(--color-gray); margin-bottom: 0; line-height: 1.7; font-size: 0.95rem; }
 
 /* History Timeline */
@@ -199,7 +200,7 @@ p { margin-bottom: var(--space-sm); color: var(--color-gray-dark); }
 .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: var(--space-lg); margin-bottom: var(--space-lg); padding-bottom: var(--space-lg); border-bottom: 1px solid rgba(255,255,255,0.08); }
 .footer-logo-img { height: 50px; width: auto; margin-bottom: var(--space-sm); }
 .footer-brand p { color: rgba(255,255,255,0.5); font-size: 0.9rem; line-height: 1.7; }
-.footer-title { font-size: 0.75rem; font-weight: 600; margin-bottom: var(--space-md); color: var(--color-white); text-transform: uppercase; letter-spacing: 0.15em; }
+.footer-title { font-family: var(--font-body); line-height: 1.2; font-size: 0.75rem; font-weight: 600; margin-bottom: var(--space-md); color: var(--color-white); text-transform: uppercase; letter-spacing: 0.15em; }
 .footer-links { display: flex; flex-direction: column; gap: 10px; }
 .footer-links a { color: rgba(255,255,255,0.5); font-size: 0.9rem; transition: var(--transition-fast); }
 .footer-links a:hover { color: var(--color-accent); }
@@ -277,12 +278,12 @@ p { margin-bottom: var(--space-sm); color: var(--color-gray-dark); }
 
 /* Contact */
 .contact-grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: var(--space-xl); }
-.contact-info h3 { margin-bottom: var(--space-lg); }
+.contact-info h3, .contact-info h2.heading-h3 { margin-bottom: var(--space-lg); }
 .contact-item { display: flex; gap: var(--space-md); margin-bottom: var(--space-md); transition: var(--transition-base); }
 .contact-item:hover { transform: translateX(6px); }
 .contact-icon { width: 50px; height: 50px; background: var(--color-black); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--color-accent); flex-shrink: 0; transition: var(--transition-base); }
 .contact-item:hover .contact-icon { background: var(--color-accent); color: var(--color-black); }
-.contact-item h4 { margin-bottom: 4px; font-size: 1rem; }
+.contact-item h4, .contact-item h3.heading-h4 { margin-bottom: 4px; font-size: 1rem; }
 .contact-item p { color: var(--color-gray); margin-bottom: 0; line-height: 1.6; font-size: 0.95rem; }
 .contact-item a { color: var(--color-primary); }
 .contact-item a:hover { color: var(--color-accent-dark); }
@@ -368,3 +369,8 @@ p { margin-bottom: var(--space-sm); color: var(--color-gray-dark); }
   .hero-label, .hero-title, .hero-text, .hero-buttons, .hero-image { opacity: 1; }
   .motion-enabled .animate-on-scroll { opacity: 1; transform: none; }
 }
+
+/* Preserve the existing appearance when semantic tags change. */
+.footer-title a { color: inherit; }
+.footer-title a:hover, .footer-title a:focus-visible { text-decoration: underline; }
+.breadcrumb .breadcrumb-gallery { color: inherit; }

@@ -10,6 +10,7 @@ const root = path.resolve(__dirname, '..');
 const dist = path.join(root, 'dist');
 
 const { pages, canonicalize, sitemap, robots } = require('./seo');
+const { onPage, improveContent } = require('./on-page-seo');
 // Each entry is [source filename, output filename, maximum width, maximum height, logo].
 const assets = [
   ['Logo alkemade website.png','alkemade-logo.webp',1000,180,true],
@@ -203,10 +204,15 @@ async function main() {
   const urls = await versionAssets(images);
   for (const page of pages) {
     const html=await fs.readFile(path.join(root,page),'utf8');
-    const rendered=responsiveMarkup(page,html,images);
-    await fs.writeFile(path.join(dist,page),canonicalize(page,optimizeDocument(rendered.html,urls)));
+    const rendered=responsiveMarkup(page,improveContent(page,html),images);
+    await fs.writeFile(path.join(dist,page),canonicalize(page,onPage(page,optimizeDocument(rendered.html,urls))));
     console.log(JSON.stringify({kind:'page',page,...rendered.stats}));
   }
+  // Reuse the original company artwork, with neutral white padding.
+  const brandSource=path.join(root,'images','Logo alkemade website.png');
+  await sharp(brandSource).rotate().resize(96,96,{fit:'contain',background:'#ffffff'}).flatten({background:'#ffffff'}).png().toFile(path.join(dist,'favicon.png'));
+  await sharp(brandSource).rotate().resize(512,512,{fit:'contain',background:'#ffffff'}).flatten({background:'#ffffff'}).png().toFile(path.join(dist,'logo.png'));
+  await sharp(brandSource).rotate().resize(1200,630,{fit:'contain',background:'#ffffff'}).flatten({background:'#ffffff'}).jpeg({quality:88}).toFile(path.join(dist,'social-card.jpg'));
   await fs.writeFile(path.join(dist,'sitemap.xml'),sitemap());
   await fs.writeFile(path.join(dist,'robots.txt'),robots());
   const errorPage = await fs.readFile(path.join(root,'404.html'),'utf8');
