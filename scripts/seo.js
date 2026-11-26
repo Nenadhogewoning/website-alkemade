@@ -2,6 +2,7 @@
 const siteOrigin = 'https://alkemadeinternational.com';
 const languages=Object.freeze(['nl','en','es']);
 const routes=Object.freeze({
+  "privacy.html": ["/privacy.html","/en/privacy/","/es/privacidad/"],
   "index.html": [
     "/",
     "/en/",

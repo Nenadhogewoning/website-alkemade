@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const {pages,canonicalPath,canonicalize,sitemap,robots,siteOrigin}=require('./seo');
-assert.equal(pages.length,10);
+assert.equal(pages.length,11);
 assert.equal(new Set(pages).size,pages.length);
 assert.equal(canonicalPath('index.html'),'/');
 for (const p of pages) {
@@ -10,7 +10,7 @@ for (const p of pages) {
   assert.ok(html.includes('href="/"'));
   assert.ok(sitemap().includes('<loc>'+siteOrigin+canonicalPath(p)+'</loc>'));
 }
-assert.equal((sitemap().match(/<loc>/g)||[]).length,30);
+assert.equal((sitemap().match(/<loc>/g)||[]).length,33);
 assert.ok(!sitemap().includes('index.html'));
 assert.ok(robots().includes('Sitemap: '+siteOrigin+'/sitemap.xml'));
 assert.throws(()=>canonicalPath('404.html'));
@@ -18,9 +18,9 @@ assert.throws(()=>canonicalize('index.html','<head><link rel="canonical" href="/
 console.log('SEO unit checks passed');
 
 const {metadata,onPage,improveContent,structuredData}=require('./on-page-seo');
-assert.equal(Object.keys(metadata).length,10);
-assert.equal(new Set(Object.values(metadata).map(v=>v[0])).size,10);
-assert.equal(new Set(Object.values(metadata).map(v=>v[1])).size,10);
+assert.equal(Object.keys(metadata).length,11);
+assert.equal(new Set(Object.values(metadata).map(v=>v[0])).size,11);
+assert.equal(new Set(Object.values(metadata).map(v=>v[1])).size,11);
 for(const p of pages){
   const html=onPage(p,'<html><head><title>Old</title><meta name="description" content="Old"></head></html>');
   assert.ok(html.includes('rel="icon"'));
@@ -57,6 +57,19 @@ for(const p of pages) for(const lang of languages) {
   assert.equal(structuredData(p,lang)['@graph'][2].inLanguage,lang);
   assert.equal(pageMetadata(p,lang).length,4);
 }
-assert.equal(allUrls.size,30);
-assert.equal((sitemap().match(/<xhtml:link/g)||[]).length,120);
+assert.equal(allUrls.size,33);
+assert.equal((sitemap().match(/<xhtml:link/g)||[]).length,132);
 console.log('International SEO checks passed');
+
+const {copy,privacyContent,contactNotice}=require('./privacy-content');
+for(const lang of languages){
+  const h=privacyContent(lang);
+  assert.equal(copy[lang].sections.length,15);
+  assert.equal((h.match(/class="privacy-section"/g)||[]).length,15);
+  for(let n=1;n<=15;n++){assert.ok(h.includes('href="#privacy-'+n+'"'));assert.ok(h.includes('id="privacy-'+n+'"'));}
+  for(const name of ['Vercel','Resend','Microsoft 365 / Exchange','Cloudflare Turnstile','Google Maps','alkemade@nl-alkemade.com'])assert.ok(h.includes(name));
+  assert.ok(h.includes('datetime="2026-11-26"'));
+  assert.ok(contactNotice(lang).includes('href="privacy.html" target="_blank" rel="noopener noreferrer"'));
+  assert.ok(!/<iframe|<script|<input/i.test(h));
+}
+console.log('Privacy content checks passed');

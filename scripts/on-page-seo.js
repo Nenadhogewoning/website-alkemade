@@ -3,6 +3,7 @@
 const {siteOrigin,pages,canonicalPath,languages}=require('./seo');
 const localizedMetadata=require('./localized-metadata');
 const metadata = {
+  "privacy.html": ["Privacyverklaring | Alkemade International","Lees hoe Alkemade International B.V. persoonsgegevens verwerkt bij websitebezoek en online contactaanvragen, en welke privacyrechten u heeft.","Privacyverklaring","WebPage"],
   "index.html": [
     "Bloemenverwerking & logistiek | Alkemade International",
     "Alkemade International in Aalsmeer ondersteunt kwekers met verwerking, veilingvoorbereiding, kwaliteitsfeedback, verkoopondersteuning en bloemenlogistiek.",
