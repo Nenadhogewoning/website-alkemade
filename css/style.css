@@ -427,3 +427,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 @media(min-width:1025px){.services-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:1024px){.hero{min-height:0;display:block;padding-top:110px}.hero-content{max-width:100%;padding:2.5rem 0}.hero-image{position:relative;inset:auto;transform:none;width:calc(100% - 3rem);height:clamp(260px,48vw,480px);margin:0 auto 1.5rem;border-radius:20px}.hero-image img{height:100%;width:100%}.hero-title{font-size:clamp(2.8rem,8vw,4.6rem)}}
 @media(prefers-reduced-motion:reduce){.hero-image,.hero-content>*{animation:none!important;opacity:1!important;transform:none!important}}
+
+/* Editorial photo collection */
+.concept-photo-section{background:#f8f6f1;padding-top:0}
+.concept-photo-grid{display:grid;grid-template-columns:1fr 1.65fr;grid-template-rows:230px 230px;gap:14px}
+.concept-photo-grid img{width:100%;height:100%;object-fit:cover;border-radius:18px;min-height:0}
+.concept-photo-grid img:first-child{grid-row:span 2;object-position:center}
+@media(max-width:650px){.concept-photo-grid{grid-template-columns:1fr;grid-template-rows:auto;gap:12px}.concept-photo-grid img{height:240px}.concept-photo-grid img:first-child{grid-row:auto;height:360px}}
