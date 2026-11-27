@@ -14,8 +14,10 @@ jobs:
         with:
           persist-credentials: false
       - run: npm install --no-audit --no-fund
+      - name: Audit production dependencies (report only)
+        run: npm audit --omit=dev --json || true
       - run: npm run build
-      - run: npm install --no-save --package-lock=false playwright@1.51.1
+      - run: npm install --no-save --package-lock=false playwright@1.51.1 @axe-core/playwright@4.10.2 lighthouse@12.8.2
       - run: npx playwright install --with-deps chromium
       - name: Test generated site locally, without sending email
         shell: bash
@@ -25,6 +27,7 @@ jobs:
           node <<'JS'
           const {chromium}=require('playwright');
           const assert=require('node:assert/strict');
+          const {AxeBuilder}=require('@axe-core/playwright');
           (async()=>{
             const browser=await chromium.launch();
             try {
@@ -54,9 +57,24 @@ jobs:
                 assert.equal(await page.evaluate(()=>document.activeElement.id),'newsModalClose');
                 await page.keyboard.press('Escape');
                 assert(!(await page.locator('#newsModal').isVisible()));
+                if(width===390||width===1440){
+                  for(const path of ['/','/services.html','/mensen.html','/partners.html','/contact.html','/galerij.html','/nieuws.html','/privacy.html']){
+                    await page.goto(origin+path);
+                    const report=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
+                    console.log('AXE '+JSON.stringify({width,path,violations:report.violations.map(v=>({id:v.id,impact:v.impact,targets:v.nodes.map(n=>n.target)}))}));
+                  }
+                }
                 await page.close();
                 console.log('PASS viewport '+width);
               }
             } finally {await browser.close();}
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
+      - name: Lighthouse lab measurement (local build, no production requests)
+        shell: bash
+        run: |
+          python3 -m http.server 8765 --directory dist > /tmp/alkemade-lighthouse.log 2>&1 &
+          trap 'kill $!' EXIT
+          export CHROME_PATH=$(node -p "require('playwright').chromium.executablePath()")
+          npx lighthouse http://127.0.0.1:8765/ --chrome-flags='--headless --no-sandbox' --only-categories=performance,accessibility,best-practices,seo --output=json --output-path=/tmp/alkemade-lh.json --quiet --blocked-url-patterns='https://*'
+          node -e "const r=require('/tmp/alkemade-lh.json'); console.log('LIGHTHOUSE '+JSON.stringify({scores:Object.fromEntries(Object.entries(r.categories).map(([k,v])=>[k,v.score])),metrics:Object.fromEntries(['first-contentful-paint','largest-contentful-paint','total-blocking-time','cumulative-layout-shift','speed-index'].map(k=>[k,r.audits[k]?.numericValue]))}))"
