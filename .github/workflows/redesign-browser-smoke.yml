@@ -16,6 +16,50 @@ jobs:
       - run: npm install --no-audit --no-fund
       - name: Audit production dependencies (report only)
         run: npm audit --omit=dev --json || true
+      - name: Contact API integration test with simulated providers
+        shell: bash
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          Object.assign(process.env,{TURNSTILE_SITE_KEY:'test-site',TURNSTILE_SECRET_KEY:'test-secret',RESEND_API_KEY:'test-key',CONTACT_FROM_EMAIL:'sender@example.com',CONTACT_TO_EMAIL:'recipient@example.com'});
+          const handler=require('./api/contact');
+          let verified=true,accepted=true,calls=[];
+          global.fetch=async (url,options)=>{
+            calls.push(url);
+            if(url.includes('siteverify'))return {ok:true,json:async()=>({success:verified,action:'contact_form',hostname:'localhost'})};
+            if(url==='https://api.resend.com/emails'){
+              const payload=JSON.parse(options.body);
+              assert.equal(payload.reply_to,'visitor@example.com');
+              assert.deepEqual(payload.to,['recipient@example.com']);
+              return {ok:accepted,status:accepted?200:502,json:async()=>accepted?{id:'simulated-id'}:{}};
+            }
+            throw Error('Unexpected outbound request');
+          };
+          const body={name:'Test',email:'visitor@example.com',subject:'QA test',message:'Simulated submission',turnstileToken:'test-token'};
+          async function request(overrides={}){
+            const req={method:'POST',headers:{host:'localhost',origin:'http://localhost','content-type':'application/json'},socket:{remoteAddress:'127.0.0.1'},body,...overrides};
+            const res={code:200,setHeader(){},status(code){this.code=code;return this},json(data){this.data=data;return this}};
+            await handler(req,res);return res;
+          }
+          (async()=>{
+            assert.equal((await request({method:'GET'})).data.siteKey,'test-site');
+            assert.equal((await request({method:'PUT'})).code,405);
+            assert.equal((await request({headers:{host:'localhost',origin:'https://example.com'}})).code,403);
+            assert.equal((await request({body:{...body,email:'invalid'}})).code,400);
+            assert.equal((await request({body:{...body,turnstileToken:''}})).code,400);
+            assert.equal(calls.length,0);
+            verified=false;
+            assert.equal((await request()).data.error,'verification_failed');
+            assert.equal(calls.length,1);
+            verified=true;
+            accepted=false;
+            assert.equal((await request()).data.error,'mail_unavailable');
+            accepted=true;
+            assert.equal((await request()).data.success,true);
+            assert.equal(calls.filter(u=>u.includes('resend.com')).length,2);
+            console.log('CONTACT PASS: 8 simulated cases; no real messages or provider requests');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
       - run: npm run build
       - run: npm install --no-save --package-lock=false playwright@1.51.1 @axe-core/playwright@4.10.2 lighthouse@12.8.2
       - run: npx playwright install --with-deps chromium
