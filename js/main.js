@@ -342,29 +342,21 @@ document.addEventListener('DOMContentLoaded', function() {
   stats.forEach(stat => statsObserver.observe(stat));
   }
   
-  // Gallery tabs with smooth filter animation
-  document.querySelectorAll('.gallery-tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-      document.querySelectorAll('.gallery-tab').forEach(t => t.classList.remove('active'));
-      this.classList.add('active');
-      const category = this.dataset.category;
-      
-      document.querySelectorAll('.gallery-item').forEach((item, index) => {
-        const show = category === 'all' || item.dataset.category === category;
-        item.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-        item.style.transitionDelay = `${index * 50}ms`;
-        
-        if (show) {
-          item.style.display = 'block';
-          setTimeout(() => {
-            item.style.opacity = '1';
-            item.style.transform = 'scale(1)';
-          }, 50);
-        } else {
-          item.style.opacity = '0';
-          item.style.transform = 'scale(0.9)';
-          setTimeout(() => { item.style.display = 'none'; }, 400);
-        }
+  // Gallery filters: immediate state updates avoid stale animation timers.
+  const galleryTabs=[...document.querySelectorAll('.gallery-tab')];
+  const galleryItems=[...document.querySelectorAll('.gallery-item')];
+  galleryTabs.forEach(tab=>{
+    tab.setAttribute('aria-pressed',String(tab.classList.contains('active')));
+    tab.addEventListener('click',()=>{
+      galleryTabs.forEach(t=>{
+        t.classList.toggle('active',t===tab);
+        t.setAttribute('aria-pressed',String(t===tab));
+      });
+      galleryItems.forEach(item=>{
+        const show=tab.dataset.category==='all'||item.dataset.category===tab.dataset.category;
+        item.hidden=!show;
+        item.style.display=show?'':'none';
+        if(show) item.classList.add('animated');
       });
     });
   });
