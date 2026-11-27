@@ -1,0 +1,62 @@
+name: Redesign browser smoke tests
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  browser-smoke:
+    if: github.head_ref == 'design/alkemade-2-concept'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - run: npm ci
+      - run: npm run build
+      - run: npm install --no-save --package-lock=false playwright@1.51.1
+      - run: npx playwright install --with-deps chromium
+      - name: Test generated site locally, without sending email
+        shell: bash
+        run: |
+          python3 -m http.server 8765 --directory dist > /tmp/alkemade-server.log 2>&1 &
+          trap 'kill $!' EXIT
+          node <<'JS'
+          const {chromium}=require('playwright');
+          const assert=require('node:assert/strict');
+          (async()=>{
+            const browser=await chromium.launch();
+            try {
+              for(const width of [390,768,1024,1440]){
+                const page=await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'});
+                await page.route('**/*',route=>route.request().url().startsWith('http://127.0.0.1:8765/')?route.continue():route.abort());
+                const origin='http://127.0.0.1:8765';
+                await page.goto(origin+'/');
+                assert.equal(await page.locator('.service-card').count(),6);
+                assert(await page.locator('.hero-image').isVisible(),'hero visible '+width);
+                assert(await page.locator('.hero-image img').evaluate(img=>img.complete&&img.naturalWidth>0),'hero loaded '+width);
+                assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),'horizontal overflow '+width);
+                if(width<=1024){
+                  await page.locator('.menu-toggle').click();
+                  assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'),'true');
+                  await page.keyboard.press('Escape');
+                  assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'),'false');
+                }
+                await page.goto(origin+'/galerij.html');
+                await page.locator('.gallery-tab[data-category="producten"]').click();
+                assert.equal(await page.locator('.gallery-item:visible').count(),4);
+                await page.locator('.gallery-tab[data-category="all"]').click();
+                assert.equal(await page.locator('.gallery-item:visible').count(),12);
+                await page.goto(origin+'/nieuws.html');
+                await page.locator('.news-link').click();
+                assert(await page.locator('#newsModal').isVisible());
+                assert.equal(await page.evaluate(()=>document.activeElement.id),'newsModalClose');
+                await page.keyboard.press('Escape');
+                assert(!(await page.locator('#newsModal').isVisible()));
+                await page.close();
+                console.log('PASS viewport '+width);
+              }
+            } finally {await browser.close();}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
