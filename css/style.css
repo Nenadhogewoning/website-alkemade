@@ -393,3 +393,37 @@ html:not(.js-language-menu) .lang-dropdown:focus-within .lang-menu { opacity:1; 
 .privacy-content a,.contact-privacy-note a { color:var(--color-primary); text-decoration:underline; text-underline-offset:.15em; }
 .privacy-content a:focus-visible,.contact-privacy-note a:focus-visible { outline:2px solid var(--color-primary); outline-offset:3px; }
 .contact-privacy-note { font-size:.875rem; line-height:1.5; margin:0 0 1rem; }
+
+
+/* Alkemade 2.0 — concept only; preserve existing markup and assets */
+:root{--color-primary:#184f8c;--color-primary-dark:#103456;--color-black:#102b48;--color-cream:#f8f6f1;--color-gray:#586574;--color-gray-dark:#354657;--space-xxl:6.5rem;--radius-lg:20px}
+body{background:#fff;color:#102b48}
+h1,h2,h3{font-weight:500;letter-spacing:-.035em}
+.nav-wrapper,.nav-wrapper.scrolled{background:rgba(255,255,255,.97);border-bottom:1px solid #e8e9eb}
+.navbar{padding:1rem 1.5rem}.nav-link.active{color:#184f8c;box-shadow:inset 0 -2px #e9c437}
+.lang-toggle,.btn-primary{background:#184f8c;color:white}
+.btn-primary:hover,.lang-toggle:hover{background:#103456}
+.btn-outline{border-color:#184f8c;color:#184f8c}.btn-outline:hover{background:#103456;color:white}
+.hero{background:#f8f6f1;min-height:min(820px,92vh);isolation:isolate;padding-top:100px}
+.hero-content{max-width:48%;padding:5rem 0}
+.hero-title{font-size:clamp(3rem,5.4vw,5.6rem);font-weight:500;line-height:.99}
+.hero-label,.section-label{color:#184f8c;letter-spacing:.15em}
+.hero-text{color:#354657}
+.hero-image{right:0;top:100px;bottom:0;transform:none;width:49%;height:auto;overflow:hidden;border-radius:28px 0 0 0}
+.hero-image img{border-radius:0;box-shadow:none;object-position:70% center}
+.hero-image::before,.hero-image::after{display:none}
+.section{padding:clamp(3.5rem,7vw,7rem) 0}
+.section-header{max-width:760px;margin-bottom:3rem}
+.section-title{font-size:clamp(2.4rem,4vw,3.8rem)}
+.service-card{border:1px solid #e3e7ea;background:white;border-radius:18px;padding:2rem;box-shadow:0 6px 24px #102b4808}
+.service-card:hover{border-color:#184f8c;box-shadow:0 12px 32px #102b4812}
+.service-icon{background:#fff3c9;color:#103456}
+.intro-image-main,.mission-image,.gallery-item,.team-member,.partner-logo{border-radius:18px;overflow:hidden}
+.team-member,.partner-logo,.contact-form{border:1px solid #e3e7ea;box-shadow:0 6px 24px #102b4808}
+.page-header{background:#f8f6f1}
+.section-dark,.cta-section,.footer{background:#103456;color:white}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #184f8c;outline-offset:3px}
+.footer a:focus-visible,.section-dark a:focus-visible,.cta-section a:focus-visible{outline-color:#e9c437}
+@media(min-width:1025px){.services-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1024px){.hero{min-height:0;display:block;padding-top:110px}.hero-content{max-width:100%;padding:2.5rem 0}.hero-image{position:relative;inset:auto;transform:none;width:calc(100% - 3rem);height:clamp(260px,48vw,480px);margin:0 auto 1.5rem;border-radius:20px}.hero-image img{height:100%;width:100%}.hero-title{font-size:clamp(2.8rem,8vw,4.6rem)}}
+@media(prefers-reduced-motion:reduce){.hero-image,.hero-content>*{animation:none!important;opacity:1!important;transform:none!important}}
