@@ -434,3 +434,25 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .concept-photo-grid img{width:100%;height:100%;object-fit:cover;border-radius:18px;min-height:0}
 .concept-photo-grid img:first-child{grid-row:span 2;object-position:center}
 @media(max-width:650px){.concept-photo-grid{grid-template-columns:1fr;grid-template-rows:auto;gap:12px}.concept-photo-grid img{height:240px}.concept-photo-grid img:first-child{grid-row:auto;height:360px}}
+
+/* Concept navigation and responsive page system */
+.nav-menu{gap:clamp(.65rem,1.5vw,1.7rem)}
+.nav-dropdown:focus-within .dropdown-menu{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+.nav-link-dropdown{cursor:pointer}
+.nav-link{white-space:nowrap}
+.team-grid,.partners-grid{gap:clamp(1rem,3vw,2.25rem)}
+.partners-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
+.partner-logo{height:220px;min-height:220px;padding:2rem}
+.contact-form{padding:clamp(1.25rem,3vw,3rem)}
+.form-group input,.form-group textarea{border-color:#aab5c0}
+.form-group input:focus,.form-group textarea:focus{outline:2px solid #184f8c;outline-offset:2px}
+@media(max-width:1024px){
+ .hero-image{display:block}
+ .nav-menu{position:fixed;top:0;right:-100%;width:min(90vw,360px);height:100dvh;background:#fff;flex-direction:column;align-items:stretch;padding:5.5rem 1.5rem 2rem;gap:.45rem;overflow-y:auto;visibility:hidden;box-shadow:0 12px 40px #102b4830}
+ .nav-menu.active{right:0;visibility:visible}
+ .menu-toggle{display:flex;position:relative;z-index:1002}
+ .nav-menu .dropdown-menu{position:static;transform:none!important;visibility:visible;opacity:1;box-shadow:none;border:0;padding:0 0 0 1rem}
+ .nav-menu .lang-menu{position:static;transform:none;display:none}
+ .nav-menu .lang-dropdown.open .lang-menu{display:block}
+}
+@media(max-width:480px){.hero-image{height:340px}.partner-logo{height:180px;min-height:180px}.logo-img{max-width:65vw;height:auto;max-height:55px}}
