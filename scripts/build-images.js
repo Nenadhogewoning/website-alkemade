@@ -168,7 +168,7 @@ async function main() {
     const source = path.join(root,'images',filename);
     const original = await fs.stat(source);
     const metadata = await sharp(source).metadata();
-    const options = logo ? {lossless:true,effort:5} : {quality:88,alphaQuality:100,effort:5};
+    const options = logo ? {lossless:true,effort:5} : {quality:filename==='FGQP8168.JPG'?80:88,alphaQuality:100,effort:5};
     const {data,info} = await sharp(source).rotate()
       .resize({width,height,fit:'inside',withoutEnlargement:true})
       .webp(options).toBuffer({resolveWithObject:true});
