@@ -3,6 +3,8 @@ const {languages,pages,canonicalPath}=require('./seo');
 const translations=require('../js/main');
 const {privacyContent,contactNotice}=require('./privacy-content');
 const extra={
+  "Bloemen": ["Flowers","Flores"],
+  "Anjers": ["Carnations","Claveles"],
   "Geïntegreerde webgebaseerde software": [
     "Integrated web-based software",
     "Software integrado basado en web"
@@ -78,6 +80,7 @@ const extra={
   ]
 };
 const alt={
+  "Anjers": ["Carnations","Claveles"],
   "Logo Alkemade International B.V.": [
     "Alkemade International B.V. logo",
     "Logotipo de Alkemade International B.V."
