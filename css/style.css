@@ -508,3 +508,8 @@ a.partner-logo::after{content:'↗';position:absolute;right:12px;top:8px;color:#
 .footer-legal{flex-wrap:wrap}
 .footer-contact a{overflow-wrap:anywhere}
 @media(max-width:768px){.intro-image-main img{height:clamp(250px,65vw,420px)}.intro-image-accent{right:-8px;bottom:-8px}.team-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}}
+
+/* Two genuine supplied photographs, no duplicate hero or empty mosaic cell. */
+.concept-photo-grid{grid-template-rows:clamp(300px,38vw,460px)}
+.concept-photo-grid img:first-child{grid-row:auto}
+@media(max-width:650px){.concept-photo-grid{grid-template-rows:auto}}
