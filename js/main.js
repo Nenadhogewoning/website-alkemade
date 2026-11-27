@@ -239,20 +239,25 @@ document.addEventListener('DOMContentLoaded', function() {
   const menuToggle = document.querySelector('.menu-toggle');
   const navMenu = document.querySelector('.nav-menu');
   if (menuToggle && navMenu) {
-    menuToggle.addEventListener('click', () => {
-      menuToggle.classList.toggle('active');
-      navMenu.classList.toggle('active');
-      document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
-    });
-    navMenu.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', () => {
-        if (window.innerWidth <= 768) {
-          menuToggle.classList.remove('active');
-          navMenu.classList.remove('active');
-          document.body.style.overflow = '';
-        }
-      });
-    });
+    const labels={nl:'Navigatiemenu',en:'Navigation menu',es:'Menú de navegación'};
+    menuToggle.setAttribute('role','button');
+    menuToggle.setAttribute('tabindex','0');
+    menuToggle.setAttribute('aria-label',labels[currentLang]||labels.nl);
+    navMenu.id=navMenu.id||'main-navigation';
+    menuToggle.setAttribute('aria-controls',navMenu.id);
+    const mobile=window.matchMedia('(max-width: 1024px)');
+    const setMenu=open=>{
+      menuToggle.classList.toggle('active',open);
+      navMenu.classList.toggle('active',open);
+      menuToggle.setAttribute('aria-expanded',String(open));
+      document.body.style.overflow=open?'hidden':'';
+    };
+    setMenu(false);
+    menuToggle.addEventListener('click',()=>setMenu(!navMenu.classList.contains('active')));
+    menuToggle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();menuToggle.click();}});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&navMenu.classList.contains('active')){setMenu(false);menuToggle.focus();}});
+    mobile.addEventListener('change',()=>setMenu(false));
+    navMenu.querySelectorAll('a.nav-link,a.dropdown-link').forEach(link=>link.addEventListener('click',()=>{if(mobile.matches)setMenu(false);}));
   }
   
   // Language dropdown with animation
