@@ -68,8 +68,17 @@ for(const lang of languages){
   assert.equal((h.match(/class="privacy-section"/g)||[]).length,15);
   for(let n=1;n<=15;n++){assert.ok(h.includes('href="#privacy-'+n+'"'));assert.ok(h.includes('id="privacy-'+n+'"'));}
   for(const name of ['Vercel','Resend','Microsoft 365 / Exchange','Cloudflare Turnstile','Google Maps','alkemade@nl-alkemade.com'])assert.ok(h.includes(name));
-  assert.ok(h.includes('datetime="2026-11-26"'));
+  assert.ok(h.includes('datetime="2026-11-27"'));
   assert.ok(contactNotice(lang).includes('href="privacy.html" target="_blank" rel="noopener noreferrer"'));
   assert.ok(!/<iframe|<script|<input/i.test(h));
 }
 console.log('Privacy content checks passed');
+
+// Legal wording: same structure and express rights in each language.
+for (const lang of languages) {
+  const h=privacyContent(lang);
+  const labels={nl:['Recht op bezwaar','Uw verzoek indienen','machineleesbaar','kosteloos'],en:['Right to object','Submitting your request','machine-readable','free of charge'],es:['Derecho de oposición','Presentación de solicitudes','lectura mecánica','gratuitamente']}[lang];
+  for(const label of labels) assert.ok(h.includes(label));
+  assert.ok(h.includes('<h3>'+labels[0]+'</h3>'));
+  assert.ok(h.includes('<h3>'+labels[1]+'</h3>'));
+}
