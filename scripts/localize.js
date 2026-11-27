@@ -197,6 +197,9 @@ function localizeDocument(page,html,lang) {
     html=html.replace(/<span([^<>]*)>([^<>]+)<\/span>/g,(all,attrs,value)=>Object.hasOwn(extra,value)?'<span'+attrs+'>'+esc(extra[value][i])+'</span>':all);
     html=html.replace(/<img\b[^>]*>/gi,tag=>tag.replace(/\balt="([^"]*)"/,(all,value)=>Object.hasOwn(alt,value)?'alt="'+esc(alt[value][i])+'"':all));
   }
+  // Accessible map labels; preserve the existing embed URL and behavior.
+  const mapTitle={nl:'Kaart van Alkemade International in Aalsmeer',en:'Map of Alkemade International in Aalsmeer',es:'Mapa de Alkemade International en Aalsmeer'}[lang];
+  html=html.replace(/<iframe\b[^>]*>/gi,tag=>/\bsrc="https:\/\/www\.google\.com\/maps\/embed\?/.test(tag)&&!/\btitle=/.test(tag)?tag.replace(/^<iframe/,'<iframe title="'+esc(mapTitle)+'"'):tag);
   const country={nl:'Nederland',en:'The Netherlands',es:'Países Bajos'}[lang];
   const po={nl:'Postbus',en:'P.O. Box',es:'Apartado postal'}[lang];
   html=html.replaceAll('<br>The Netherlands','<br>'+country).replaceAll('>Postbus 1032','>'+po+' 1032');
