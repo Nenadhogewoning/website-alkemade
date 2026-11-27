@@ -239,20 +239,25 @@ document.addEventListener('DOMContentLoaded', function() {
   const menuToggle = document.querySelector('.menu-toggle');
   const navMenu = document.querySelector('.nav-menu');
   if (menuToggle && navMenu) {
-    menuToggle.addEventListener('click', () => {
-      menuToggle.classList.toggle('active');
-      navMenu.classList.toggle('active');
-      document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
-    });
-    navMenu.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', () => {
-        if (window.innerWidth <= 768) {
-          menuToggle.classList.remove('active');
-          navMenu.classList.remove('active');
-          document.body.style.overflow = '';
-        }
-      });
-    });
+    const labels={nl:'Navigatiemenu',en:'Navigation menu',es:'Menú de navegación'};
+    menuToggle.setAttribute('role','button');
+    menuToggle.setAttribute('tabindex','0');
+    menuToggle.setAttribute('aria-label',labels[currentLang]||labels.nl);
+    navMenu.id=navMenu.id||'main-navigation';
+    menuToggle.setAttribute('aria-controls',navMenu.id);
+    const mobile=window.matchMedia('(max-width: 1024px)');
+    const setMenu=open=>{
+      menuToggle.classList.toggle('active',open);
+      navMenu.classList.toggle('active',open);
+      menuToggle.setAttribute('aria-expanded',String(open));
+      document.body.style.overflow=open?'hidden':'';
+    };
+    setMenu(false);
+    menuToggle.addEventListener('click',()=>setMenu(!navMenu.classList.contains('active')));
+    menuToggle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();menuToggle.click();}});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&navMenu.classList.contains('active')){setMenu(false);menuToggle.focus();}});
+    mobile.addEventListener('change',()=>setMenu(false));
+    navMenu.querySelectorAll('a.nav-link,a.dropdown-link').forEach(link=>link.addEventListener('click',()=>{if(mobile.matches)setMenu(false);}));
   }
   
   // Language dropdown with animation
@@ -337,29 +342,21 @@ document.addEventListener('DOMContentLoaded', function() {
   stats.forEach(stat => statsObserver.observe(stat));
   }
   
-  // Gallery tabs with smooth filter animation
-  document.querySelectorAll('.gallery-tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-      document.querySelectorAll('.gallery-tab').forEach(t => t.classList.remove('active'));
-      this.classList.add('active');
-      const category = this.dataset.category;
-      
-      document.querySelectorAll('.gallery-item').forEach((item, index) => {
-        const show = category === 'all' || item.dataset.category === category;
-        item.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-        item.style.transitionDelay = `${index * 50}ms`;
-        
-        if (show) {
-          item.style.display = 'block';
-          setTimeout(() => {
-            item.style.opacity = '1';
-            item.style.transform = 'scale(1)';
-          }, 50);
-        } else {
-          item.style.opacity = '0';
-          item.style.transform = 'scale(0.9)';
-          setTimeout(() => { item.style.display = 'none'; }, 400);
-        }
+  // Gallery filters: immediate state updates avoid stale animation timers.
+  const galleryTabs=[...document.querySelectorAll('.gallery-tab')];
+  const galleryItems=[...document.querySelectorAll('.gallery-item')];
+  galleryTabs.forEach(tab=>{
+    tab.setAttribute('aria-pressed',String(tab.classList.contains('active')));
+    tab.addEventListener('click',()=>{
+      galleryTabs.forEach(t=>{
+        t.classList.toggle('active',t===tab);
+        t.setAttribute('aria-pressed',String(t===tab));
+      });
+      galleryItems.forEach(item=>{
+        const show=tab.dataset.category==='all'||item.dataset.category===tab.dataset.category;
+        item.hidden=!show;
+        item.style.display=show?'':'none';
+        if(show) item.classList.add('animated');
       });
     });
   });

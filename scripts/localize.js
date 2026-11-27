@@ -3,6 +3,8 @@ const {languages,pages,canonicalPath}=require('./seo');
 const translations=require('../js/main');
 const {privacyContent,contactNotice}=require('./privacy-content');
 const extra={
+  "Bloemen": ["Flowers","Flores"],
+  "Anjers": ["Carnations","Claveles"],
   "Geïntegreerde webgebaseerde software": [
     "Integrated web-based software",
     "Software integrado basado en web"
@@ -78,6 +80,7 @@ const extra={
   ]
 };
 const alt={
+  "Anjers": ["Carnations","Claveles"],
   "Logo Alkemade International B.V.": [
     "Alkemade International B.V. logo",
     "Logotipo de Alkemade International B.V."
@@ -175,6 +178,9 @@ function localizeDocument(page,html,lang) {
   html=html.replace(/<a href="#" data-i18n="footer\.privacy">/g,'<a href="privacy.html" data-i18n="footer.privacy">');
   if(page==='privacy.html'&&html.includes('<!-- PRIVACY_CONTENT -->'))html=html.replace('<!-- PRIVACY_CONTENT -->',privacyContent(lang));
   if(page==='contact.html'&&html.includes('<!-- CONTACT_PRIVACY_NOTICE -->'))html=html.replace('<!-- CONTACT_PRIVACY_NOTICE -->',contactNotice(lang));
+  // Concept navigation: direct services link, preserve gallery and its children.
+  html=html.replace(/<li class="nav-dropdown">/, '<li><a href="services.html" class="nav-link'+(page==='services.html'?' active':'')+'" data-i18n="nav.gallery.products">Diensten</a></li><li class="nav-dropdown">');
+  html=html.replace(/<span class="nav-link nav-link-dropdown([^"]*)" data-i18n="nav.gallery">([\s\S]*?)<\/span>/, '<a href="galerij.html" class="nav-link nav-link-dropdown$1" data-i18n="nav.gallery">$2</a>');
   const expected=(html.match(/\bdata-i18n="/g)||[]).length;
   html=html.replace(/<([a-z][a-z0-9]*)\b([^<>]*\bdata-i18n="([^"]+)"[^<>]*)>([\s\S]*?)<\/\1>/gi,(all,tag,attrs,key,old)=>{
     translated++;
@@ -191,6 +197,9 @@ function localizeDocument(page,html,lang) {
     html=html.replace(/<span([^<>]*)>([^<>]+)<\/span>/g,(all,attrs,value)=>Object.hasOwn(extra,value)?'<span'+attrs+'>'+esc(extra[value][i])+'</span>':all);
     html=html.replace(/<img\b[^>]*>/gi,tag=>tag.replace(/\balt="([^"]*)"/,(all,value)=>Object.hasOwn(alt,value)?'alt="'+esc(alt[value][i])+'"':all));
   }
+  // Accessible map labels; preserve the existing embed URL and behavior.
+  const mapTitle={nl:'Kaart van Alkemade International in Aalsmeer',en:'Map of Alkemade International in Aalsmeer',es:'Mapa de Alkemade International en Aalsmeer'}[lang];
+  html=html.replace(/<iframe\b[^>]*>/gi,tag=>/\bsrc="https:\/\/www\.google\.com\/maps\/embed\?/.test(tag)&&!/\btitle=/.test(tag)?tag.replace(/^<iframe/,'<iframe title="'+esc(mapTitle)+'"'):tag);
   const country={nl:'Nederland',en:'The Netherlands',es:'Países Bajos'}[lang];
   const po={nl:'Postbus',en:'P.O. Box',es:'Apartado postal'}[lang];
   html=html.replaceAll('<br>The Netherlands','<br>'+country).replaceAll('>Postbus 1032','>'+po+' 1032');

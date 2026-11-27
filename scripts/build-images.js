@@ -15,6 +15,9 @@ const { onPage, improveContent } = require('./on-page-seo');
 const {prepareFonts,prepareStock,protectDocument,removeExternalFonts,assertPrivateMarkup}=require('./privacy-assets');
 // Each entry is [source filename, output filename, maximum width, maximum height, logo].
 const assets = [
+  ['FGQP8168.JPG','grower-flowers.webp',1920,1920,false],
+  ['IMG_6877.JPG','carnations.webp',1920,1920,false],
+  ['IMG_6892.JPG','grower-greenhouse.webp',1920,1920,false],
   ['Logo alkemade website.png','alkemade-logo.webp',1000,180,true],
   ['AD Flowers.png','ad-flowers.webp',900,700,true],
   ['Basket of Flowers Logo .png','basket-of-flowers.webp',900,700,true],
@@ -58,8 +61,8 @@ function splitSizes(meta, height) {
 function policy(page, tag, src, index, meta) {
   if (tag.includes('class="logo-img"')) return {loading:'eager',sizes:'201px'};
   if (tag.includes('class="footer-logo-img"')) return {loading:'lazy',sizes:'167px'};
-  if (page === 'index.html' && src === 'images/foto 5.jpeg')
-    return {loading:'eager',high:true,hero:true,sizes:Math.ceil(500 * Math.max(1,meta.width/meta.height))+'px'};
+  if (page === 'index.html' && src === 'images/FGQP8168.JPG')
+    return {loading:'eager',high:true,hero:true,sizes:'(max-width: 1024px) calc(100vw - 48px), 49vw'};
   if (page === 'index.html') return {loading:'lazy',sizes:splitSizes(meta,500)};
   if (page === 'klanten.html' || (page === 'services.html' && src === 'images/Foto 10.png'))
     return {loading:'eager',high:true,sizes:splitSizes(meta,400)};
@@ -107,10 +110,7 @@ function responsiveMarkup(page, html, images) {
     }
     // This image is already hidden by CSS at <= 1024px. A matching picture
     // source avoids requesting the desktop photo at all, without JavaScript.
-    if (plan.hero) {
-      tag='<picture><source media="(max-width: 1024px)" srcset="'+placeholder+'">'+tag+'</picture>';
-      stats.hero++;
-    }
+    if (plan.hero) stats.hero++;
     return tag;
   });
   return {html:result,stats};
@@ -168,7 +168,7 @@ async function main() {
     const source = path.join(root,'images',filename);
     const original = await fs.stat(source);
     const metadata = await sharp(source).metadata();
-    const options = logo ? {lossless:true,effort:5} : {quality:88,alphaQuality:100,effort:5};
+    const options = logo ? {lossless:true,effort:5} : {quality:filename==='FGQP8168.JPG'?80:88,alphaQuality:100,effort:5};
     const {data,info} = await sharp(source).rotate()
       .resize({width,height,fit:'inside',withoutEnlargement:true})
       .webp(options).toBuffer({resolveWithObject:true});
