@@ -59,7 +59,7 @@ function policy(page, tag, src, index, meta) {
   if (tag.includes('class="logo-img"')) return {loading:'eager',sizes:'201px'};
   if (tag.includes('class="footer-logo-img"')) return {loading:'lazy',sizes:'167px'};
   if (page === 'index.html' && src === 'images/foto 5.jpeg')
-    return {loading:'eager',high:true,hero:true,sizes:Math.ceil(500 * Math.max(1,meta.width/meta.height))+'px'};
+    return {loading:'eager',high:true,hero:true,sizes:'(max-width: 1024px) calc(100vw - 48px), 49vw'};
   if (page === 'index.html') return {loading:'lazy',sizes:splitSizes(meta,500)};
   if (page === 'klanten.html' || (page === 'services.html' && src === 'images/Foto 10.png'))
     return {loading:'eager',high:true,sizes:splitSizes(meta,400)};
@@ -107,10 +107,7 @@ function responsiveMarkup(page, html, images) {
     }
     // This image is already hidden by CSS at <= 1024px. A matching picture
     // source avoids requesting the desktop photo at all, without JavaScript.
-    if (plan.hero) {
-      tag='<picture><source media="(max-width: 1024px)" srcset="'+placeholder+'">'+tag+'</picture>';
-      stats.hero++;
-    }
+    if (plan.hero) stats.hero++;
     return tag;
   });
   return {html:result,stats};
