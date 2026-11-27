@@ -175,6 +175,9 @@ function localizeDocument(page,html,lang) {
   html=html.replace(/<a href="#" data-i18n="footer\.privacy">/g,'<a href="privacy.html" data-i18n="footer.privacy">');
   if(page==='privacy.html'&&html.includes('<!-- PRIVACY_CONTENT -->'))html=html.replace('<!-- PRIVACY_CONTENT -->',privacyContent(lang));
   if(page==='contact.html'&&html.includes('<!-- CONTACT_PRIVACY_NOTICE -->'))html=html.replace('<!-- CONTACT_PRIVACY_NOTICE -->',contactNotice(lang));
+  // Concept navigation: direct services link, preserve gallery and its children.
+  html=html.replace(/<li class="nav-dropdown">/, '<li><a href="services.html" class="nav-link'+(page==='services.html'?' active':'')+'" data-i18n="nav.gallery.products">Diensten</a></li><li class="nav-dropdown">');
+  html=html.replace(/<span class="nav-link nav-link-dropdown([^"]*)" data-i18n="nav.gallery">([\s\S]*?)<\/span>/, '<a href="galerij.html" class="nav-link nav-link-dropdown$1" data-i18n="nav.gallery">$2</a>');
   const expected=(html.match(/\bdata-i18n="/g)||[]).length;
   html=html.replace(/<([a-z][a-z0-9]*)\b([^<>]*\bdata-i18n="([^"]+)"[^<>]*)>([\s\S]*?)<\/\1>/gi,(all,tag,attrs,key,old)=>{
     translated++;
